@@ -1,0 +1,91 @@
+name: Śodhamitra — build, test, install on an emulator
+
+# Builds the Śodhamitra testing APK, runs the unit/UI tests, then installs and launches the APK on a real Android emulator
+# (hardware-accelerated on GitHub's Linux runners). Uses no secrets and no paid service. The APK is signed with the committed
+# TESTING key, which is not the Google Play key.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ claude/sodhamitra-android-app-4cqilb ]
+    paths: [ 'sodhamitra/**', '.github/workflows/sodhamitra.yml' ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sodhamitra-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build APK and run the automated tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: sodhamitra/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: android-actions/setup-android@v3
+        with: { packages: 'platform-tools platforms;android-36 build-tools;36.0.0' }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Strings are complete in all ten languages
+        run: python3 ../tools/i18n/generate_strings.py --check
+      - name: Unit tests (logic, translations, database, screens, PDF layout)
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+      - name: Build the testing APK
+        run: ./gradlew --no-daemon :app:assembleDebug
+      - name: Lint
+        run: ./gradlew --no-daemon :app:lintDebug
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Sodhamitra-testing-apk
+          path: sodhamitra/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Sodhamitra-unit-test-evidence
+          path: |
+            sodhamitra/android/app/build/test-results/testDebugUnitTest
+            sodhamitra/android/app/build/screenshots
+            sodhamitra/android/app/build/pdf-test
+            sodhamitra/android/app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+
+  emulator:
+    name: Install, launch and test on an Android emulator
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: android-actions/setup-android@v3
+        with: { packages: 'platform-tools platforms;android-36 build-tools;36.0.0' }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Enable hardware acceleration (KVM)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      - name: Run on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash sodhamitra/tools/ci/emulator_checks.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Sodhamitra-emulator-evidence
+          path: sodhamitra/ci-out
+          if-no-files-found: ignore
