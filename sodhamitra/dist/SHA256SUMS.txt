@@ -1,0 +1,2 @@
+0a08f31abf8f697f15cf6ff8ebaedfc0741608eb85863778165149848cacaff6  Sodhamitra-0.1.0-testing.apk
+ad8aef96e132cbd77b6ab17e8b96d6c06ad866f87970cd7fc6af96ffcff2bbae  Sodhamitra-source.zip
