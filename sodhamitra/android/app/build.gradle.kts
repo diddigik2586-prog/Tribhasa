@@ -57,6 +57,11 @@ android {
         localeFilters += listOf("en", "kn", "sa", "te", "hi", "ta", "bn", "gu", "ml", "or")
     }
 
+    // The language of the interface is chosen inside the app, so a Play bundle must keep every language in the base APK.
+    bundle {
+        language { enableSplit = false }
+    }
+
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }

@@ -71,8 +71,8 @@ private fun bookColumns(d: Display): List<TableColumn> {
 @Composable
 fun EditingListScreen(vm: AppViewModel) {
     val d = Display(LocalContext.current)
-    val mss by rememberFlow { vm.repo.editingManuscripts() }.collectAsState(initial = emptyList())
-    val books by rememberFlow(PlannerList.EDITING) { vm.repo.plannerBooks(PlannerList.EDITING) }.collectAsState(initial = emptyList())
+    val mss = rememberFlow { vm.repo.editingManuscripts() }.collectAsState(initial = emptyList()).value
+    val books = rememberFlow(PlannerList.EDITING) { vm.repo.plannerBooks(PlannerList.EDITING) }.collectAsState(initial = emptyList()).value
     val msScroll = androidx.compose.foundation.rememberScrollState()
     val bookScroll = rememberScrollState()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
@@ -114,7 +114,7 @@ fun EditingListScreen(vm: AppViewModel) {
 @Composable
 fun TransListScreen(vm: AppViewModel) {
     val d = Display(LocalContext.current)
-    val books by rememberFlow(PlannerList.TRANS) { vm.repo.plannerBooks(PlannerList.TRANS) }.collectAsState(initial = emptyList())
+    val books = rememberFlow(PlannerList.TRANS) { vm.repo.plannerBooks(PlannerList.TRANS) }.collectAsState(initial = emptyList()).value
     val scroll = rememberScrollState()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 

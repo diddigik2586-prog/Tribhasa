@@ -57,9 +57,9 @@ fun RecordCard(lines: List<Pair<String, String>>, onEdit: () -> Unit, onDelete: 
 @Composable
 fun BibliographyScreen(vm: AppViewModel, projectId: Long) {
     val d = Display(LocalContext.current)
-    val books by rememberFlow(projectId) { vm.repo.bibBooks(projectId) }.collectAsState(initial = emptyList())
-    val mss by rememberFlow(MsScope.BIB, projectId) { vm.repo.manuscripts(MsScope.BIB, projectId) }.collectAsState(initial = emptyList())
-    val articles by rememberFlow(projectId) { vm.repo.bibArticles(projectId) }.collectAsState(initial = emptyList())
+    val books = rememberFlow(projectId) { vm.repo.bibBooks(projectId) }.collectAsState(initial = emptyList()).value
+    val mss = rememberFlow(MsScope.BIB, projectId) { vm.repo.manuscripts(MsScope.BIB, projectId) }.collectAsState(initial = emptyList()).value
+    val articles = rememberFlow(projectId) { vm.repo.bibArticles(projectId) }.collectAsState(initial = emptyList()).value
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 
     AppScaffold(title = stringResource(R.string.bibliography), onBack = { vm.back() }) { padding ->
@@ -100,8 +100,8 @@ fun BibliographyScreen(vm: AppViewModel, projectId: Long) {
 @Composable
 fun NotesScreen(vm: AppViewModel, projectId: Long) {
     val d = Display(LocalContext.current)
-    val notes by rememberFlow(projectId) { vm.repo.notes(projectId) }.collectAsState(initial = emptyList())
-    val citations by rememberFlow(projectId) { vm.repo.citationRows(projectId) }.collectAsState(initial = emptyList())
+    val notes = rememberFlow(projectId) { vm.repo.notes(projectId) }.collectAsState(initial = emptyList()).value
+    val citations = rememberFlow(projectId) { vm.repo.citationRows(projectId) }.collectAsState(initial = emptyList()).value
     val expanded = rememberExpanded()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 

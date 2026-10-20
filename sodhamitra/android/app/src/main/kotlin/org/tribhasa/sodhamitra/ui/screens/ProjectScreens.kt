@@ -71,7 +71,7 @@ private fun mutableStateListOf(): SnapshotStateList<Long> = androidx.compose.run
 
 @Composable
 fun ProjectsScreen(vm: AppViewModel, kind: String) {
-    val projects by rememberFlow(kind) { vm.repo.projects(kind) }.collectAsState(initial = emptyList())
+    val projects = rememberFlow(kind) { vm.repo.projects(kind) }.collectAsState(initial = emptyList()).value
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
     val isPhd = kind == ProjectKind.PHD
 
@@ -107,7 +107,7 @@ fun ProjectsScreen(vm: AppViewModel, kind: String) {
 
 @Composable
 fun ProjectScreen(vm: AppViewModel, projectId: Long) {
-    val project by rememberFlow(projectId) { vm.repo.project(projectId) }.collectAsState(initial = null)
+    val project = rememberFlow(projectId) { vm.repo.project(projectId) }.collectAsState(initial = null).value
     val p = project
     AppScaffold(title = p?.title ?: "", onBack = { vm.back() }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -139,8 +139,8 @@ fun BigOption(label: Int, onClick: () -> Unit) {
 
 @Composable
 fun OutlineScreen(vm: AppViewModel, projectId: Long) {
-    val project by rememberFlow(projectId) { vm.repo.project(projectId) }.collectAsState(initial = null)
-    val chapters by rememberFlow(projectId) { vm.repo.chapters(projectId) }.collectAsState(initial = emptyList())
+    val project = rememberFlow(projectId) { vm.repo.project(projectId) }.collectAsState(initial = null).value
+    val chapters = rememberFlow(projectId) { vm.repo.chapters(projectId) }.collectAsState(initial = emptyList()).value
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
     val phd = project?.kind != ProjectKind.BOOK
 
@@ -170,8 +170,8 @@ fun OutlineScreen(vm: AppViewModel, projectId: Long) {
 
 @Composable
 fun ChapterScreen(vm: AppViewModel, projectId: Long, chapterId: Long) {
-    val chapter by rememberFlow(chapterId) { vm.repo.chapter(chapterId) }.collectAsState(initial = null)
-    val points by rememberFlow(chapterId) { vm.repo.points(chapterId) }.collectAsState(initial = emptyList())
+    val chapter = rememberFlow(chapterId) { vm.repo.chapter(chapterId) }.collectAsState(initial = null).value
+    val points = rememberFlow(chapterId) { vm.repo.points(chapterId) }.collectAsState(initial = emptyList()).value
     val expanded = rememberExpanded()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 

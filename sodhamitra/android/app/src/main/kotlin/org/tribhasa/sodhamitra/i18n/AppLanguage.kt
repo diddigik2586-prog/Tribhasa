@@ -33,6 +33,8 @@ object LanguageStore {
     fun get(context: Context): AppLanguage =
         AppLanguage.fromCode(context.getSharedPreferences(FILE, Context.MODE_PRIVATE).getString(KEY, null))
 
+    // commit(), not apply(): the activity is recreated at once and must see the new language
+    @android.annotation.SuppressLint("ApplySharedPref")
     fun set(context: Context, language: AppLanguage) {
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE).edit().putString(KEY, language.code).commit()
     }

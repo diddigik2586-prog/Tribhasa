@@ -9,7 +9,6 @@
     <string name="pdf_footer_line2" translatable="false">Created by © Dr. Diddigi Vamsi Krishna</string>
     <string name="feedback_email" translatable="false">dvkrishna92@gmail.com</string>
     <string name="feedback_subject" translatable="false">Śodhamitra App Feedback</string>
-    <string name="add">Add</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="save">Save</string>
@@ -17,15 +16,10 @@
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="back">Back</string>
-    <string name="ok">OK</string>
     <string name="export">Export</string>
-    <string name="copy">Copy</string>
     <string name="share">Share</string>
     <string name="open">Open</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="required_field">This field is required.</string>
-    <string name="more_options">More options</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="delete_title">Delete?</string>
@@ -112,7 +106,6 @@
     <string name="impact_factor_label">Impact Factor</string>
     <string name="citation_source">Source</string>
     <string name="citation_new_source">New source</string>
-    <string name="citation_existing">Use an existing source</string>
     <string name="citation_page_folio">Page / Folio</string>
     <string name="citation_note">Contextual note</string>
     <string name="citation_shared">This source is used by %1$d citations. Changes to its details apply to all of them.</string>
@@ -182,7 +175,6 @@
     <string name="profile_remove_photo">Remove photograph</string>
     <string name="profile_optional_note">All profile fields are optional. Your profile is kept only on this device and appears in the header of exported PDFs.</string>
     <string name="profile_saved">Profile saved.</string>
-    <string name="profile_none">Not specified</string>
     <string name="language_note">The interface language changes only the menus and labels of the app. What you have written is never translated or altered.</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_purpose">Śodhamitra — Research Planner is a private workspace that helps scholars plan, organise and document their research. It works entirely on this device.</string>

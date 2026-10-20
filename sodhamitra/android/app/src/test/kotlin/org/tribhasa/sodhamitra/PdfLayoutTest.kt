@@ -145,4 +145,24 @@ class PdfLayoutTest {
         assertTrue("a 400-line cell must continue over several pages, got ${pages.size}", pages.size >= 3)
         assertNoOverflowIntoFooter(pages, true)
     }
+
+    @Test fun profile_photograph_appears_in_the_first_page_header_and_an_empty_profile_still_works() = go {
+        val p = repo.saveProject(ProjectKind.PHD, null, "With photo")
+        repo.saveChapter(p, null, "C1")
+        // no profile at all: the PDF is still produced, with no header block
+        val without = exporter.build(ExportTarget.Phd(p), setOf(ExportSection.THESIS_OUTLINE))!!
+        assertNull(without.profile)
+        render(without, "no-profile")
+        // a profile with a photograph
+        val photo = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888).also { b -> android.graphics.Canvas(b).drawColor(Color.rgb(200, 30, 30)) }
+        repo.photoDir.mkdirs()
+        File(repo.photoDir, "profile_photo_test.jpg").outputStream().use { photo.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+        repo.saveProfile(Profile(prefix = "Prof.", name = "Photo Person", designation = "Professor", photoFile = "profile_photo_test.jpg"))
+        val with = exporter.build(ExportTarget.Phd(p), setOf(ExportSection.THESIS_OUTLINE))!!
+        assertNotNull(with.profile!!.photo)
+        val pages = render(with, "with-photo")
+        // the red photograph is drawn at the top-left of page 1 (62 x 62 pt at the page margin)
+        val px = pages[0].getPixel(40 + 30, 40 + 30)
+        assertTrue("photo pixel should be red, was ${Integer.toHexString(px)}", Color.red(px) > 150 && Color.green(px) < 90)
+    }
 }
