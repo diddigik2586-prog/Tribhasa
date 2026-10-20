@@ -14,7 +14,7 @@ data class CitationRow(
 )
 
 /** All reading and writing of research data goes through here. Everything is local; nothing leaves the device. */
-class Repository(private val db: AppDatabase, val photoDir: File) {
+class Repository(val db: AppDatabase, val photoDir: File) {
     val dao: AppDao = db.dao()
 
     private fun now() = System.currentTimeMillis()

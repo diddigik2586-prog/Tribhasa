@@ -56,6 +56,27 @@ private fun RecordForm(
 }
 
 @Composable
+fun ProjectFormScreen(vm: AppViewModel, kind: String, id: Long?) {
+    val phd = kind == org.tribhasa.sodhamitra.data.ProjectKind.PHD
+    RecordForm(
+        vm, stringResource(if (phd) (if (id == null) R.string.new_phd_project else R.string.edit_phd_project)
+                           else (if (id == null) R.string.new_book_project else R.string.edit_book_project)),
+        if (phd) Forms.researchTitle else Forms.bookTitle, id != null,
+        load = { vm.repo.dao.projectOnce(id!!)?.let { mapOf("title" to it.title) } },
+        save = { v -> vm.repo.saveProject(kind, id, v["title"].orEmpty()) },
+    )
+}
+
+@Composable
+fun ChapterFormScreen(vm: AppViewModel, projectId: Long, id: Long?) {
+    RecordForm(
+        vm, stringResource(if (id == null) R.string.add_chapter_title else R.string.edit_chapter_title), Forms.chapterTitle, id != null,
+        load = { vm.repo.dao.chaptersOnce(projectId).firstOrNull { it.id == id }?.let { mapOf("title" to it.title) } },
+        save = { v -> vm.repo.saveChapter(projectId, id, v["title"].orEmpty()) },
+    )
+}
+
+@Composable
 fun ManuscriptFormScreen(vm: AppViewModel, scope: String, projectId: Long?, id: Long?) {
     RecordForm(
         vm, stringResource(if (id == null) R.string.add_manuscript else R.string.edit_manuscript),

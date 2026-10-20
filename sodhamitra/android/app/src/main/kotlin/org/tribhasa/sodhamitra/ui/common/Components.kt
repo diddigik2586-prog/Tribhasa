@@ -250,28 +250,6 @@ fun SaveCancelBar(isEdit: Boolean, onCancel: () -> Unit, onSave: () -> Unit, ena
     }
 }
 
-/** A small dialog asking for one line of text (project title, chapter title). */
-@Composable
-fun TitleDialog(
-    @StringRes dialogTitle: Int, @StringRes fieldLabel: Int, initial: String, isEdit: Boolean,
-    onDismiss: () -> Unit, onSave: (String) -> Unit,
-) {
-    var text by remember { mutableStateOf(initial) }
-    var attempted by remember { mutableStateOf(false) }
-    val error = if (attempted && text.isBlank()) stringResource(R.string.required_field) else null
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Txt(dialogTitle, style = MaterialTheme.typography.titleLarge) },
-        text = { ScriptTextField(text, { text = it }, stringResource(fieldLabel) + " *", singleLine = false, minLines = 1, error = error) },
-        confirmButton = {
-            TextButton(onClick = { if (text.isBlank()) attempted = true else onSave(text) }) {
-                Txt(if (isEdit) R.string.save_changes else R.string.save, fontWeight = FontWeight.Medium)
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Txt(R.string.cancel) } },
-    )
-}
-
 @Composable
 fun ProvideLocal(snack: SnackbarHostState, content: @Composable () -> Unit) =
     CompositionLocalProvider(LocalSnack provides snack, content = content)

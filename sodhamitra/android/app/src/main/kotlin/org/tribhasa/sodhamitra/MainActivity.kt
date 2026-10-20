@@ -16,6 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.compose.foundation.layout.fillMaxSize
 import org.tribhasa.sodhamitra.i18n.LanguageStore
 import org.tribhasa.sodhamitra.ui.AppViewModel
@@ -26,6 +28,8 @@ import org.tribhasa.sodhamitra.ui.screens.AboutDvkScreen
 import org.tribhasa.sodhamitra.ui.screens.BibArticleFormScreen
 import org.tribhasa.sodhamitra.ui.screens.BibBookFormScreen
 import org.tribhasa.sodhamitra.ui.screens.BibliographyScreen
+import org.tribhasa.sodhamitra.ui.screens.ChapterFormScreen
+import org.tribhasa.sodhamitra.ui.screens.ProjectFormScreen
 import org.tribhasa.sodhamitra.ui.screens.ChapterScreen
 import org.tribhasa.sodhamitra.ui.screens.CitationFormScreen
 import org.tribhasa.sodhamitra.ui.screens.EditingListScreen
@@ -49,7 +53,10 @@ import org.tribhasa.sodhamitra.ui.screens.TransListScreen
 import org.tribhasa.sodhamitra.ui.theme.SodhamitraTheme
 
 class MainActivity : ComponentActivity() {
-    private val vm: AppViewModel by viewModels()
+    // The repository is handed in explicitly (no hidden global factory state).
+    private val vm: AppViewModel by viewModels {
+        viewModelFactory { initializer { AppViewModel((application as SodhamitraApp).repository) } }
+    }
 
     /** All strings are bundled in the app; the chosen interface language is applied here. */
     override fun attachBaseContext(newBase: Context) {
@@ -89,6 +96,8 @@ fun AppNav(vm: AppViewModel) {
             Route.AboutDvk -> AboutDvkScreen(vm)
             Route.Support -> SupportScreen(vm)
             is Route.Projects -> ProjectsScreen(vm, r.kind)
+            is Route.ProjectForm -> ProjectFormScreen(vm, r.kind, r.id)
+            is Route.ChapterForm -> ChapterFormScreen(vm, r.projectId, r.id)
             is Route.Project -> ProjectScreen(vm, r.id)
             is Route.Outline -> OutlineScreen(vm, r.projectId)
             is Route.Chapter -> ChapterScreen(vm, r.projectId, r.chapterId)

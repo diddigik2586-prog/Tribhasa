@@ -6,7 +6,7 @@ import org.tribhasa.sodhamitra.data.AppDatabase
 import org.tribhasa.sodhamitra.data.Repository
 
 /** Creates the local database once. There is no networking code anywhere in this application. */
-class SodhamitraApp : Application() {
+open class SodhamitraApp : Application() {
     val repository: Repository by lazy {
         val db = databaseOverride ?: AppDatabase.open(this)
         Repository(db, File(filesDir, "profile").apply { mkdirs() })

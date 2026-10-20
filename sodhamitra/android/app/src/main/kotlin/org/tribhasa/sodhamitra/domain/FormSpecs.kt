@@ -110,6 +110,11 @@ object Forms {
         FieldSpec("contextNote", R.string.citation_note, FieldType.MULTILINE),
     )
 
+    // ---- project titles and chapter titles: one mandatory line -------------------------------------------------
+    val researchTitle: List<FieldSpec> = listOf(FieldSpec("title", R.string.research_title_label, required = true))
+    val bookTitle: List<FieldSpec> = listOf(FieldSpec("title", R.string.book_title_label, required = true))
+    val chapterTitle: List<FieldSpec> = listOf(FieldSpec("title", R.string.chapter_title_label, required = true))
+
     // ---- outline points and research notes: a title plus a description of any length ---------------------------
     val point: List<FieldSpec> = listOf(
         FieldSpec("title", R.string.point_title_label, required = true),

@@ -54,7 +54,6 @@ import org.tribhasa.sodhamitra.ui.common.HeadingText
 import org.tribhasa.sodhamitra.ui.common.HintLine
 import org.tribhasa.sodhamitra.ui.common.LongPressCard
 import org.tribhasa.sodhamitra.ui.common.MenuAction
-import org.tribhasa.sodhamitra.ui.common.TitleDialog
 import org.tribhasa.sodhamitra.ui.common.Txt
 
 /** A confirmation that is pending: which message to show and what to do when the user confirms. */
@@ -71,8 +70,6 @@ private fun mutableStateListOf(): SnapshotStateList<Long> = androidx.compose.run
 @Composable
 fun ProjectsScreen(vm: AppViewModel, kind: String) {
     val projects by vm.repo.projects(kind).collectAsState(initial = emptyList())
-    var editing by remember { mutableStateOf<Project?>(null) }
-    var adding by remember { mutableStateOf(false) }
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
     val isPhd = kind == ProjectKind.PHD
 
@@ -84,13 +81,13 @@ fun ProjectsScreen(vm: AppViewModel, kind: String) {
             Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { Button(onClick = { adding = true }, modifier = Modifier.fillMaxWidth()) { Txt(R.string.add_project, fontWeight = FontWeight.Medium) } }
+            item { Button(onClick = { vm.go(Route.ProjectForm(kind, null)) }, modifier = Modifier.fillMaxWidth()) { Txt(R.string.add_project, fontWeight = FontWeight.Medium) } }
             if (projects.isEmpty()) item { EmptyHint(R.string.empty_projects) } else item { HintLine(R.string.hint_longpress_project) }
             items(projects, key = { it.id }) { p ->
                 LongPressCard(
                     onClick = { vm.go(Route.Project(p.id)) },
                     actions = listOf(
-                        MenuAction(R.string.edit) { editing = p },
+                        MenuAction(R.string.edit) { vm.go(Route.ProjectForm(kind, p.id)) },
                         MenuAction(R.string.delete, destructive = true) {
                             pending = PendingDelete(R.string.delete_project_msg) { vm.launch { vm.repo.deleteProject(p.id) } }
                         },
@@ -101,20 +98,6 @@ fun ProjectsScreen(vm: AppViewModel, kind: String) {
         }
     }
 
-    if (adding) TitleDialog(
-        dialogTitle = if (isPhd) R.string.new_phd_project else R.string.new_book_project,
-        fieldLabel = if (isPhd) R.string.research_title_label else R.string.book_title_label,
-        initial = "", isEdit = false, onDismiss = { adding = false },
-        onSave = { t -> adding = false; vm.launch { vm.repo.saveProject(kind, null, t) } },
-    )
-    editing?.let { p ->
-        TitleDialog(
-            dialogTitle = if (isPhd) R.string.edit_phd_project else R.string.edit_book_project,
-            fieldLabel = if (isPhd) R.string.research_title_label else R.string.book_title_label,
-            initial = p.title, isEdit = true, onDismiss = { editing = null },
-            onSave = { t -> editing = null; vm.launch { vm.repo.saveProject(kind, p.id, t) } },
-        )
-    }
     pending?.let { d -> ConfirmDeleteDialog(d.message, onConfirm = { d.action(); pending = null }, onDismiss = { pending = null }) }
 }
 
@@ -156,36 +139,26 @@ fun BigOption(label: Int, onClick: () -> Unit) {
 fun OutlineScreen(vm: AppViewModel, projectId: Long) {
     val project by vm.repo.project(projectId).collectAsState(initial = null)
     val chapters by vm.repo.chapters(projectId).collectAsState(initial = emptyList())
-    var adding by remember { mutableStateOf(false) }
-    var editing by remember { mutableStateOf<Chapter?>(null) }
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
     val phd = project?.kind != ProjectKind.BOOK
 
     AppScaffold(title = stringResource(if (phd) R.string.thesis_outline else R.string.book_outline), onBack = { vm.back() }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item { Button(onClick = { adding = true }, modifier = Modifier.fillMaxWidth()) { Txt(R.string.add_chapter, fontWeight = FontWeight.Medium) } }
+            item { Button(onClick = { vm.go(Route.ChapterForm(projectId, null)) }, modifier = Modifier.fillMaxWidth()) { Txt(R.string.add_chapter, fontWeight = FontWeight.Medium) } }
             if (chapters.isEmpty()) item { EmptyHint(R.string.empty_chapters) } else item { HintLine(R.string.hint_longpress) }
             items(chapters.size, key = { chapters[it].id }) { i ->
                 val c = chapters[i]
                 LongPressCard(
                     onClick = { vm.go(Route.Chapter(projectId, c.id)) },
                     actions = listOf(
-                        MenuAction(R.string.edit) { editing = c },
+                        MenuAction(R.string.edit) { vm.go(Route.ChapterForm(projectId, c.id)) },
                         MenuAction(R.string.delete, destructive = true) {
                             pending = PendingDelete(R.string.delete_chapter_msg) { vm.launch { vm.repo.deleteChapter(c.id) } }
                         },
                     ),
                 ) { Txt("${i + 1}. ${c.title}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) }
             }
-        }
-    }
-    if (adding) TitleDialog(R.string.add_chapter_title, R.string.chapter_title_label, "", false, { adding = false }) { t ->
-        adding = false; vm.launch { vm.repo.saveChapter(projectId, null, t) }
-    }
-    editing?.let { c ->
-        TitleDialog(R.string.edit_chapter_title, R.string.chapter_title_label, c.title, true, { editing = null }) { t ->
-            editing = null; vm.launch { vm.repo.saveChapter(projectId, c.id, t) }
         }
     }
     pending?.let { d -> ConfirmDeleteDialog(d.message, onConfirm = { d.action(); pending = null }, onDismiss = { pending = null }) }

@@ -99,6 +99,7 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.17")
     testImplementation("androidx.test:core-ktx:1.7.0")
     testImplementation("androidx.test.ext:junit:1.3.0")
+    testImplementation("androidx.test.espresso:espresso-core:3.7.0")
     testImplementation("androidx.compose.ui:ui-test-junit4")
     testImplementation("androidx.room:room-testing:$room")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")

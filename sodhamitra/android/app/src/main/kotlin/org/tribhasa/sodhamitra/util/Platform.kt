@@ -27,9 +27,12 @@ object Feedback {
         putExtra(Intent.EXTRA_SUBJECT, SUBJECT)
     }
 
+    /** replaced only by automated tests, to simulate a device without an email app */
+    internal var starter: (Context, Intent) -> Unit = { c, i -> c.startActivity(i) }
+
     /** true when an email app took the draft; false when this device has no email app. */
     fun open(context: Context): Boolean = try {
-        context.startActivity(draftIntent()); true
+        starter(context, draftIntent()); true
     } catch (e: ActivityNotFoundException) { false }
 }
 

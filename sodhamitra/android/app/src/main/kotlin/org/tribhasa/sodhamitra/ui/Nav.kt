@@ -1,15 +1,14 @@
 package org.tribhasa.sodhamitra.ui
 
-import android.app.Application
 import androidx.annotation.StringRes
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import org.tribhasa.sodhamitra.SodhamitraApp
 import org.tribhasa.sodhamitra.data.Repository
 
 /** What a PDF export covers. The page orientation follows from the target (portrait, or landscape for the planner). */
@@ -31,6 +30,8 @@ sealed interface Route {
     data object Support : Route
 
     data class Projects(val kind: String) : Route
+    data class ProjectForm(val kind: String, val id: Long?) : Route
+    data class ChapterForm(val projectId: Long, val id: Long?) : Route
     data class Project(val id: Long) : Route
     data class Outline(val projectId: Long) : Route
     data class Chapter(val projectId: Long, val chapterId: Long) : Route
@@ -55,8 +56,7 @@ sealed interface Route {
 data class Entry(val id: Long, val route: Route)
 
 /** Holds the navigation stack and the repository; survives language changes (which recreate the activity). */
-class AppViewModel(app: Application) : AndroidViewModel(app) {
-    val repo: Repository = (app as SodhamitraApp).repository
+class AppViewModel(val repo: Repository) : ViewModel() {
 
     private var nextId = 0L
     val stack = mutableStateListOf(Entry(nextId++, Route.Splash))
@@ -70,7 +70,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun toHome() { while (stack.size > 1) stack.removeAt(stack.lastIndex); replaceTop(Route.Home) }
 
     /** runs a database write to completion even if the screen that started it has already been left */
-    fun launch(block: suspend () -> Unit) { viewModelScope.launch { block() } }
+    fun launch(block: suspend () -> Unit) { viewModelScope.launch(Dispatchers.Default) { block() } }
 
     private val _messages = MutableSharedFlow<Int>(extraBufferCapacity = 4, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val messages: SharedFlow<Int> = _messages
