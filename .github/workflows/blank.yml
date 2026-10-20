@@ -1,0 +1,167 @@
+name: Build Tribhāṣā Testing APK
+
+# Builds the free testing (debug) APK and uploads it as a downloadable artifact.
+#
+# Works in two ways, so that a phone is enough:
+#   1. the project folders (android/, tools/ ...) are in the repository, or
+#   2. only the project ZIP was uploaded to the repository (GitHub's web page cannot unpack a ZIP): the workflow unpacks it.
+#
+# It uses NO secrets and NO paid service. The debug APK is signed with Android's standard debug key, made on the runner; the
+# earlier signed APK is not touched. The AI model is not built into the APK: the app downloads it on first use.
+# If the build fails, the reason is written into the run's annotations and summary, so it can be read and fixed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft_release:
+        description: 'Also prepare a DRAFT release holding the APK (a draft is not public; nothing is published without you)'
+        type: boolean
+        default: false
+  push:
+    paths:
+      - 'android/**'
+      - '*.zip'
+      - 'tools/check_model_source.py'
+      - '.github/workflows/build-testing-apk.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-debug-apk:
+    name: Compile free testing APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # the history is small; it lets the next step choose the most recently uploaded ZIP
+
+      - name: Find the project (folders in the repository, or an uploaded ZIP)
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            root="."
+            echo "Project folders found in the repository."
+          else
+            # Several ZIPs? Use the one uploaded most recently (by commit time).
+            zip=""; best=-1
+            while IFS= read -r -d '' f; do
+              f=${f#./}
+              when=$(git log -1 --format=%ct -- "$f" 2>/dev/null || true)
+              when=${when:-0}
+              if [ "$when" -ge "$best" ]; then best=$when; zip=$f; fi
+            done < <(find . -maxdepth 1 -name '*.zip' -print0 | sort -z)
+            if [ -z "$zip" ]; then
+              echo "::error title=No project found::The repository has neither an android/ folder nor a .zip file at its top level. Upload the project ZIP (Add file, then Upload files) and run this again."
+              exit 1
+            fi
+            echo "Unpacking $zip"
+            rm -rf _project && mkdir _project
+            unzip -q -- "$zip" -d _project
+            found=$(find _project -maxdepth 4 -path '*/android/app/build.gradle.kts' | head -n 1)
+            if [ -z "$found" ]; then
+              echo "::error title=Wrong ZIP::$zip does not contain android/app/build.gradle.kts. Upload the Tribhasa source ZIP that was sent to you."
+              exit 1
+            fi
+            root="${found%/android/app/build.gradle.kts}"
+          fi
+          echo "Project root: $root"
+          echo "PROJECT_ROOT=$root" >> "$GITHUB_ENV"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: |
+            platform-tools
+            platforms;android-36
+            build-tools;36.0.0
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.13'
+          cache-provider: basic
+
+      # Asks the model publisher's server for headers only (nothing is downloaded) and compares the size and SHA-256 with
+      # the values written into the app. A failure here does not stop the build; it is shown in the log and summary.
+      - name: Check the model address, size and checksum against the publisher
+        id: modelcheck
+        continue-on-error: true
+        run: python3 "$PROJECT_ROOT/tools/check_model_source.py" "$PROJECT_ROOT/android/app/src/main/kotlin/org/tribhasa/app/core/LocalModels.kt"
+
+      # Builds the APK. If it fails, the reason is copied into the annotations and the summary (see tools/ci/build_apk.sh).
+      - name: Compile the debug APK
+        run: bash "$PROJECT_ROOT/tools/ci/build_apk.sh" "$PROJECT_ROOT"
+
+      # Uploaded before the tests run, so the APK is kept even if a test fails.
+      - name: Upload testing APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: Tribhasa-testing-debug-apk
+          path: ${{ env.PROJECT_ROOT }}/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      # The core checks use stand-ins for the network and for the model engine. They do not run the real model.
+      # A failing check does not remove the APK; it is reported as a warning.
+      - name: Run the unit tests
+        id: tests
+        continue-on-error: true
+        run: bash "$PROJECT_ROOT/tools/ci/run_unit_tests.sh" "$PROJECT_ROOT"
+
+      - name: Say how the checks ended
+        if: ${{ always() }}
+        run: |
+          {
+            echo "### Checks"
+            echo "- Model source check: \`${{ steps.modelcheck.outcome }}\`"
+            echo "- Unit tests (stand-ins, not the real model): \`${{ steps.tests.outcome }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the unit-test report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: Tribhasa-unit-test-report
+          path: |
+            ${{ env.PROJECT_ROOT }}/android/app/build/reports/tests/testDebugUnitTest
+            ${{ env.PROJECT_ROOT }}/android/app/build/test-results/testDebugUnitTest
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Only when started by hand with "draft_release" ticked. A DRAFT is visible only to people who can edit the repository; it
+  # is published only if you press Publish yourself.
+  draft-release:
+    name: Prepare a DRAFT release (not published)
+    needs: android-debug-apk
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.draft_release }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Get the APK
+        uses: actions/download-artifact@v8
+        with:
+          name: Tribhasa-testing-debug-apk
+          path: apk
+
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk=$(find apk -name '*.apk' | head -n 1)
+          gh release create "testing-${GITHUB_RUN_NUMBER}" "$apk" --repo "$GITHUB_REPOSITORY" --draft --prerelease \
+            --title "Tribhāṣā testing build ${GITHUB_RUN_NUMBER} (debug APK - draft)" \
+            --notes "Testing build. The AI model is downloaded by the app on first use (about 2.59 GB). Quality for Sanskrit and Kannada has not been evaluated. Draft: not published."
+          echo "::notice title=Draft release prepared::It is a draft; open the Releases page to look at it. Nothing was published."
