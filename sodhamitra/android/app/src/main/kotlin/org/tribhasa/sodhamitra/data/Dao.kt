@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import org.tribhasa.sodhamitra.domain.TextChunks
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -42,11 +43,12 @@ interface AppDao {
     @Insert suspend fun insert(p: Point): Long
     @Update suspend fun update(p: Point)
     @Query("DELETE FROM points WHERE id = :id") suspend fun deletePoint(id: Long)
-    @Query("SELECT text FROM point_descriptions WHERE pointId = :pointId")
-    fun pointDescription(pointId: Long): Flow<String?>
-    @Query("SELECT text FROM point_descriptions WHERE pointId = :pointId")
-    suspend fun pointDescriptionOnce(pointId: Long): String?
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun put(d: PointDescription)
+    @Query("SELECT text FROM point_description_chunks WHERE pointId = :pointId ORDER BY seq")
+    fun pointDescriptionChunks(pointId: Long): Flow<List<String>>
+    @Query("SELECT text FROM point_description_chunks WHERE pointId = :pointId ORDER BY seq")
+    suspend fun pointDescriptionChunksOnce(pointId: Long): List<String>
+    @Query("DELETE FROM point_description_chunks WHERE pointId = :pointId") suspend fun clearPointDescription(pointId: Long)
+    @Insert suspend fun insertPointChunks(chunks: List<PointDescriptionChunk>)
 
     // ---- notes
     @Query("SELECT * FROM notes WHERE projectId = :projectId ORDER BY id")
@@ -58,11 +60,12 @@ interface AppDao {
     @Insert suspend fun insert(n: Note): Long
     @Update suspend fun update(n: Note)
     @Query("DELETE FROM notes WHERE id = :id") suspend fun deleteNote(id: Long)
-    @Query("SELECT text FROM note_descriptions WHERE noteId = :noteId")
-    fun noteDescription(noteId: Long): Flow<String?>
-    @Query("SELECT text FROM note_descriptions WHERE noteId = :noteId")
-    suspend fun noteDescriptionOnce(noteId: Long): String?
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun put(d: NoteDescription)
+    @Query("SELECT text FROM note_description_chunks WHERE noteId = :noteId ORDER BY seq")
+    fun noteDescriptionChunks(noteId: Long): Flow<List<String>>
+    @Query("SELECT text FROM note_description_chunks WHERE noteId = :noteId ORDER BY seq")
+    suspend fun noteDescriptionChunksOnce(noteId: Long): List<String>
+    @Query("DELETE FROM note_description_chunks WHERE noteId = :noteId") suspend fun clearNoteDescription(noteId: Long)
+    @Insert suspend fun insertNoteChunks(chunks: List<NoteDescriptionChunk>)
 
     // ---- bibliography books / articles
     @Query("SELECT * FROM bib_books WHERE projectId = :projectId ORDER BY id")
@@ -134,14 +137,16 @@ interface AppDao {
     @Transaction
     suspend fun savePoint(point: Point, text: String): Long {
         val id = if (point.id == 0L) insert(point) else { update(point); point.id }
-        put(PointDescription(id, text))
+        clearPointDescription(id)
+        insertPointChunks(TextChunks.split(text).mapIndexed { i, t -> PointDescriptionChunk(id, i, t) })
         return id
     }
 
     @Transaction
     suspend fun saveNote(note: Note, text: String): Long {
         val id = if (note.id == 0L) insert(note) else { update(note); note.id }
-        put(NoteDescription(id, text))
+        clearNoteDescription(id)
+        insertNoteChunks(TextChunks.split(text).mapIndexed { i, t -> NoteDescriptionChunk(id, i, t) })
         return id
     }
 }

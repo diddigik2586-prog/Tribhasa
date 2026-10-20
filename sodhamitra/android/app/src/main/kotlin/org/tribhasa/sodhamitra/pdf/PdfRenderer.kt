@@ -114,7 +114,7 @@ class PdfRenderer(private val fonts: PdfFonts, private val doc: PdfDoc, private 
 
     // ---- text -----------------------------------------------------------------------------------------------
     private fun layout(text: String, width: Float, size: Float, color: Int = ink, weight: Int = 400, align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL): StaticLayout {
-        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { textSize = size; this.color = color; typeface = fonts.typeface(Script.LATIN, weight) }
+        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG or Paint.LINEAR_TEXT_FLAG).apply { textSize = size; this.color = color; typeface = fonts.typeface(Script.LATIN, weight) }
         val s = fonts.spannable(text, weight)
         return StaticLayout.Builder.obtain(s, 0, s.length, paint, width.toInt().coerceAtLeast(1))
             .setAlignment(align).setLineSpacing(0f, 1.1f).setIncludePad(false).build()

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -22,7 +23,7 @@ import org.tribhasa.sodhamitra.data.Repository
 typealias Rule = AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>
 
 /** Small helpers shared by the Robolectric UI tests. They drive the real screens through the real MainActivity. */
-class Ui(val rule: Rule) {
+class Ui(val rule: ComposeTestRule) {
     val app: TestApp get() = ApplicationProvider.getApplicationContext<Context>() as TestApp
     val repo: Repository get() = app.repository
 
@@ -30,7 +31,8 @@ class Ui(val rule: Rule) {
 
     /** waits (real time) until a node with exactly this text exists; data arrives from the database on another thread */
     fun await(text: String, timeoutMs: Long = 15_000) {
-        rule.waitUntil(timeoutMs) { rule.waitForIdle(); exists(text) }   // waitForIdle lets results from the database reach the main thread
+        try { rule.waitUntil(timeoutMs) { rule.waitForIdle(); exists(text) } }   // waitForIdle lets results from the database reach the main thread
+        catch (e: androidx.compose.ui.test.ComposeTimeoutException) { throw AssertionError("text '$text' did not appear within $timeoutMs ms", e) }
     }
 
     fun awaitGone(text: String, timeoutMs: Long = 15_000) {
@@ -50,7 +52,7 @@ class Ui(val rule: Rule) {
     /** replaces the whole content of a field (used when editing an existing record) */
     fun replace(label: String, value: String) { field(label).performTextReplacement(value); rule.waitForIdle() }
 
-    fun top(text: String, index: Int = 0): Float = node(text, index).fetchSemanticsNode().boundsInRoot.top
+    fun top(text: String, index: Int = 0): Float = node(text, index).fetchSemanticsNode().positionInRoot.y
 
     /** asserts that the given texts are on screen from top to bottom in exactly this order */
     fun assertOrder(vararg texts: String) {

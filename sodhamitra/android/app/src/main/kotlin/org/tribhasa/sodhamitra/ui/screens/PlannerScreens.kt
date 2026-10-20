@@ -25,6 +25,7 @@ import org.tribhasa.sodhamitra.ui.AppViewModel
 import org.tribhasa.sodhamitra.ui.ExportTarget
 import org.tribhasa.sodhamitra.ui.Route
 import org.tribhasa.sodhamitra.ui.common.AppScaffold
+import org.tribhasa.sodhamitra.ui.common.rememberFlow
 import org.tribhasa.sodhamitra.ui.common.BarTextButton
 import org.tribhasa.sodhamitra.ui.common.ConfirmDeleteDialog
 import org.tribhasa.sodhamitra.ui.common.EmptyHint
@@ -70,8 +71,8 @@ private fun bookColumns(d: Display): List<TableColumn> {
 @Composable
 fun EditingListScreen(vm: AppViewModel) {
     val d = Display(LocalContext.current)
-    val mss by vm.repo.editingManuscripts().collectAsState(initial = emptyList())
-    val books by vm.repo.plannerBooks(PlannerList.EDITING).collectAsState(initial = emptyList())
+    val mss by rememberFlow { vm.repo.editingManuscripts() }.collectAsState(initial = emptyList())
+    val books by rememberFlow(PlannerList.EDITING) { vm.repo.plannerBooks(PlannerList.EDITING) }.collectAsState(initial = emptyList())
     val msScroll = androidx.compose.foundation.rememberScrollState()
     val bookScroll = rememberScrollState()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
@@ -113,7 +114,7 @@ fun EditingListScreen(vm: AppViewModel) {
 @Composable
 fun TransListScreen(vm: AppViewModel) {
     val d = Display(LocalContext.current)
-    val books by vm.repo.plannerBooks(PlannerList.TRANS).collectAsState(initial = emptyList())
+    val books by rememberFlow(PlannerList.TRANS) { vm.repo.plannerBooks(PlannerList.TRANS) }.collectAsState(initial = emptyList())
     val scroll = rememberScrollState()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 

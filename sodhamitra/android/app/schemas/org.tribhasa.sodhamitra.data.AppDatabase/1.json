@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7eee53c08d4b5e18b52841d4f88a2c5d",
+    "identityHash": "afe4b81151fd0361f31f94339fa5cb9a",
     "entities": [
       {
         "tableName": "projects",
@@ -155,12 +155,18 @@
         ]
       },
       {
-        "tableName": "point_descriptions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pointId` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`pointId`), FOREIGN KEY(`pointId`) REFERENCES `points`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "tableName": "point_description_chunks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pointId` INTEGER NOT NULL, `seq` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`pointId`, `seq`), FOREIGN KEY(`pointId`) REFERENCES `points`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "pointId",
             "columnName": "pointId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seq",
+            "columnName": "seq",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -174,7 +180,8 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "pointId"
+            "pointId",
+            "seq"
           ]
         },
         "foreignKeys": [
@@ -246,12 +253,18 @@
         ]
       },
       {
-        "tableName": "note_descriptions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`noteId` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`noteId`), FOREIGN KEY(`noteId`) REFERENCES `notes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "tableName": "note_description_chunks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`noteId` INTEGER NOT NULL, `seq` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`noteId`, `seq`), FOREIGN KEY(`noteId`) REFERENCES `notes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "noteId",
             "columnName": "noteId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seq",
+            "columnName": "seq",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -265,7 +278,8 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "noteId"
+            "noteId",
+            "seq"
           ]
         },
         "foreignKeys": [
@@ -910,7 +924,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7eee53c08d4b5e18b52841d4f88a2c5d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'afe4b81151fd0361f31f94339fa5cb9a')"
     ]
   }
 }

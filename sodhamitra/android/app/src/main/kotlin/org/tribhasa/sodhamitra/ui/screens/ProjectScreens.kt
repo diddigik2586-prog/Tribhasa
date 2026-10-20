@@ -42,12 +42,14 @@ import kotlinx.coroutines.flow.Flow
 import org.tribhasa.sodhamitra.R
 import org.tribhasa.sodhamitra.data.Chapter
 import org.tribhasa.sodhamitra.data.Point
+import org.tribhasa.sodhamitra.domain.TextChunks
 import org.tribhasa.sodhamitra.data.Project
 import org.tribhasa.sodhamitra.data.ProjectKind
 import org.tribhasa.sodhamitra.ui.AppViewModel
 import org.tribhasa.sodhamitra.ui.ExportTarget
 import org.tribhasa.sodhamitra.ui.Route
 import org.tribhasa.sodhamitra.ui.common.AppScaffold
+import org.tribhasa.sodhamitra.ui.common.rememberFlow
 import org.tribhasa.sodhamitra.ui.common.ConfirmDeleteDialog
 import org.tribhasa.sodhamitra.ui.common.EmptyHint
 import org.tribhasa.sodhamitra.ui.common.HeadingText
@@ -69,7 +71,7 @@ private fun mutableStateListOf(): SnapshotStateList<Long> = androidx.compose.run
 
 @Composable
 fun ProjectsScreen(vm: AppViewModel, kind: String) {
-    val projects by vm.repo.projects(kind).collectAsState(initial = emptyList())
+    val projects by rememberFlow(kind) { vm.repo.projects(kind) }.collectAsState(initial = emptyList())
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
     val isPhd = kind == ProjectKind.PHD
 
@@ -105,7 +107,7 @@ fun ProjectsScreen(vm: AppViewModel, kind: String) {
 
 @Composable
 fun ProjectScreen(vm: AppViewModel, projectId: Long) {
-    val project by vm.repo.project(projectId).collectAsState(initial = null)
+    val project by rememberFlow(projectId) { vm.repo.project(projectId) }.collectAsState(initial = null)
     val p = project
     AppScaffold(title = p?.title ?: "", onBack = { vm.back() }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -137,8 +139,8 @@ fun BigOption(label: Int, onClick: () -> Unit) {
 
 @Composable
 fun OutlineScreen(vm: AppViewModel, projectId: Long) {
-    val project by vm.repo.project(projectId).collectAsState(initial = null)
-    val chapters by vm.repo.chapters(projectId).collectAsState(initial = emptyList())
+    val project by rememberFlow(projectId) { vm.repo.project(projectId) }.collectAsState(initial = null)
+    val chapters by rememberFlow(projectId) { vm.repo.chapters(projectId) }.collectAsState(initial = emptyList())
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
     val phd = project?.kind != ProjectKind.BOOK
 
@@ -168,8 +170,8 @@ fun OutlineScreen(vm: AppViewModel, projectId: Long) {
 
 @Composable
 fun ChapterScreen(vm: AppViewModel, projectId: Long, chapterId: Long) {
-    val chapter by vm.repo.chapter(chapterId).collectAsState(initial = null)
-    val points by vm.repo.points(chapterId).collectAsState(initial = emptyList())
+    val chapter by rememberFlow(chapterId) { vm.repo.chapter(chapterId) }.collectAsState(initial = null)
+    val points by rememberFlow(chapterId) { vm.repo.points(chapterId) }.collectAsState(initial = emptyList())
     val expanded = rememberExpanded()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 
@@ -183,7 +185,7 @@ fun ChapterScreen(vm: AppViewModel, projectId: Long, chapterId: Long) {
                 ExpandableItem(
                     title = pt.title, expanded = pt.id in expanded,
                     onToggle = { if (pt.id in expanded) expanded.remove(pt.id) else expanded.add(pt.id) },
-                    description = vm.repo.pointDescription(pt.id),
+                    description = rememberFlow(pt.id) { vm.repo.pointDescription(pt.id) },
                     onEdit = { vm.go(Route.PointEditor(chapterId, pt.id)) },
                     onDelete = { pending = PendingDelete(R.string.delete_point_msg) { vm.launch { vm.repo.deletePoint(pt.id) } } },
                 )
@@ -215,7 +217,8 @@ fun ExpandableItem(
             else Column {
                 // shown paragraph by paragraph, exactly as typed
                 for (line in text!!.split('\n')) {
-                    if (line.isEmpty()) Spacer(Modifier.size(8.dp)) else Txt(line, style = MaterialTheme.typography.bodyMedium)
+                    if (line.isEmpty()) Spacer(Modifier.size(8.dp))
+                    else for (piece in TextChunks.split(line, 4000)) Txt(piece, style = MaterialTheme.typography.bodyMedium)
                 }
             }
             OutlinedButton(onClick = onEdit, modifier = Modifier.padding(top = 10.dp)) { Txt(R.string.edit, fontWeight = FontWeight.Medium) }

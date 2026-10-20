@@ -103,6 +103,29 @@ class AppFlowTest {
         assertFalse(ui.exists("Veda Peetha Prashasti (2024)"))
     }
 
+    // ---- Language ---------------------------------------------------------------------------------------------
+
+    @Test fun choosing_a_language_in_settings_changes_the_interface_but_never_the_users_content() {
+        ui.click("PhD Research"); ui.click("+ Add Project"); ui.await("New Research Project")
+        ui.type("Research Title", "ರಾಮಾಯಣ — Rāmāyaṇa"); ui.save(); ui.await("ರಾಮಾಯಣ — Rāmāyaṇa")
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("PhD Research")
+        ui.click("Settings"); ui.click("Language")
+        ui.assertShown("English", "ಕನ್ನಡ", "संस्कृतम्", "తెలుగు", "हिन्दी", "தமிழ்", "বাংলা", "ગુજરાતી", "മലയാളം", "ଓଡ଼ିଆ")
+        ui.assertOrder("English", "ಕನ್ನಡ", "संस्कृतम्", "తెలుగు", "हिन्दी", "தமிழ்", "বাংলা", "ગુજરાતી", "മലയാളം", "ଓଡ଼ିଆ")
+        ui.click("ಕನ್ನಡ")                                   // the activity is recreated in Kannada
+        ui.await("ಭಾಷೆ")                                    // the Language page now has its Kannada title
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        ui.await("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನೆ"); assertFalse(ui.exists("PhD Research"))
+        ui.click("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನೆ")
+        ui.await("ರಾಮಾಯಣ — Rāmāyaṇa")                       // the project title is exactly as typed
+        assertEquals("ರಾಮಾಯಣ — Rāmāyaṇa", runBlocking { ui.repo.projects(ProjectKind.PHD).first() }.single().title)
+        // and back to English
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("ಸೆಟ್ಟಿಂಗ್‌ಗಳು".let { "ಸೆಟ್ಟಿಂಗ್‌ಗಳು" })
+        ui.click("ಸೆಟ್ಟಿಂಗ್‌ಗಳು"); ui.click("ಭಾಷೆ"); ui.click("English")
+        ui.await("Language")
+    }
+
     // ---- Profile ----------------------------------------------------------------------------------------------
 
     @Test fun profile_has_no_mandatory_fields() {

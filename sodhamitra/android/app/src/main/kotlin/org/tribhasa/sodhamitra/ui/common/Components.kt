@@ -60,6 +60,14 @@ import org.tribhasa.sodhamitra.ui.theme.rememberScriptText
 
 val LocalSnack = compositionLocalOf { SnackbarHostState() }
 
+/**
+ * A database Flow created once per set of [keys]. Room returns a NEW Flow object on every call, and collectAsState restarts
+ * whenever it is handed a different Flow, so a Flow must never be created afresh on each recomposition.
+ */
+@Composable
+fun <T> rememberFlow(vararg keys: Any?, flow: () -> kotlinx.coroutines.flow.Flow<T>): kotlinx.coroutines.flow.Flow<T> =
+    remember(*keys, calculation = flow)
+
 /** Text drawn with the bundled font of each script it contains (Ubuntu for English). All app text goes through here. */
 @Composable
 fun Txt(

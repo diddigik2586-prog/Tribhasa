@@ -4,6 +4,8 @@ import androidx.room.withTransaction
 import java.io.File
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import org.tribhasa.sodhamitra.domain.TextChunks
 
 /** A citation together with the (shared) source it points to. Exactly one of book / manuscript / article is set. */
 data class CitationRow(
@@ -47,18 +49,18 @@ class Repository(val db: AppDatabase, val photoDir: File) {
     suspend fun deleteChapter(id: Long) = dao.deleteChapter(id)
 
     fun points(chapterId: Long) = dao.points(chapterId)
-    fun pointDescription(pointId: Long) = dao.pointDescription(pointId)
+    fun pointDescription(pointId: Long): Flow<String?> = dao.pointDescriptionChunks(pointId).map { TextChunks.join(it) }
     suspend fun point(id: Long) = dao.pointOnce(id)
-    suspend fun pointDescriptionOnce(id: Long) = dao.pointDescriptionOnce(id).orEmpty()
+    suspend fun pointDescriptionOnce(id: Long) = TextChunks.join(dao.pointDescriptionChunksOnce(id))
     suspend fun savePoint(chapterId: Long, id: Long?, title: String, description: String): Long =
         dao.savePoint(Point(id = id ?: 0, chapterId = chapterId, title = title.trim()), description)
     suspend fun deletePoint(id: Long) = dao.deletePoint(id)
 
     // ---- research notes ------------------------------------------------------------------------------------
     fun notes(projectId: Long) = dao.notes(projectId)
-    fun noteDescription(noteId: Long) = dao.noteDescription(noteId)
+    fun noteDescription(noteId: Long): Flow<String?> = dao.noteDescriptionChunks(noteId).map { TextChunks.join(it) }
     suspend fun note(id: Long) = dao.noteOnce(id)
-    suspend fun noteDescriptionOnce(id: Long) = dao.noteDescriptionOnce(id).orEmpty()
+    suspend fun noteDescriptionOnce(id: Long) = TextChunks.join(dao.noteDescriptionChunksOnce(id))
     suspend fun saveNote(projectId: Long, id: Long?, title: String, description: String): Long =
         dao.saveNote(Note(id = id ?: 0, projectId = projectId, title = title.trim()), description)
     suspend fun deleteNote(id: Long) = dao.deleteNote(id)

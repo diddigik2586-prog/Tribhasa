@@ -94,7 +94,7 @@ class PdfExporter(private val context: Context, private val repo: Repository) {
             out.add(H2(String.format(s(R.string.pdf_chapter), i + 1) + ": " + c.title))
             repo.dao.pointsOnce(c.id).forEachIndexed { j, p ->
                 out.add(H3("${i + 1}.${j + 1}  ${p.title}"))
-                repo.dao.pointDescriptionOnce(p.id)?.takeIf { it.isNotBlank() }?.let { out.add(Para(it)) }
+                repo.pointDescriptionOnce(p.id).takeIf { it.isNotBlank() }?.let { out.add(Para(it)) }
             }
         }
     }
@@ -105,7 +105,7 @@ class PdfExporter(private val context: Context, private val repo: Repository) {
         out.add(H1(s(R.string.research_notes)))
         notes.forEachIndexed { i, n ->
             out.add(H3("${i + 1}.  ${n.title}"))
-            repo.dao.noteDescriptionOnce(n.id)?.takeIf { it.isNotBlank() }?.let { out.add(Para(it)) }
+            repo.noteDescriptionOnce(n.id).takeIf { it.isNotBlank() }?.let { out.add(Para(it)) }
         }
     }
 

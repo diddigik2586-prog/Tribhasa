@@ -61,15 +61,16 @@ data class Point(
     val title: String,
 )
 
-/** The description of one point: its own record, linked to the point, holding text of any length. */
+/**
+ * The description of one point: its own records, linked to the point. The text is stored in consecutive chunks so that a
+ * description of any length can be written AND read back (one Android database row cannot exceed about 2 MB).
+ */
 @Entity(
-    tableName = "point_descriptions",
+    tableName = "point_description_chunks",
+    primaryKeys = ["pointId", "seq"],
     foreignKeys = [ForeignKey(Point::class, ["id"], ["pointId"], onDelete = ForeignKey.CASCADE)],
 )
-data class PointDescription(
-    @PrimaryKey val pointId: Long,
-    val text: String,
-)
+data class PointDescriptionChunk(val pointId: Long, val seq: Int, val text: String)
 
 @Entity(
     tableName = "notes",
@@ -83,13 +84,11 @@ data class Note(
 )
 
 @Entity(
-    tableName = "note_descriptions",
+    tableName = "note_description_chunks",
+    primaryKeys = ["noteId", "seq"],
     foreignKeys = [ForeignKey(Note::class, ["id"], ["noteId"], onDelete = ForeignKey.CASCADE)],
 )
-data class NoteDescription(
-    @PrimaryKey val noteId: Long,
-    val text: String,
-)
+data class NoteDescriptionChunk(val noteId: Long, val seq: Int, val text: String)
 
 /** A book in a PhD bibliography, or a book that is cited in a book project. */
 @Entity(

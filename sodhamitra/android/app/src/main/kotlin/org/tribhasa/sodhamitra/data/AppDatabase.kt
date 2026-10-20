@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        Project::class, Chapter::class, Point::class, PointDescription::class, Note::class, NoteDescription::class,
+        Project::class, Chapter::class, Point::class, PointDescriptionChunk::class, Note::class, NoteDescriptionChunk::class,
         BibBook::class, BibArticle::class, Manuscript::class, Citation::class, PlannerBook::class, Profile::class,
     ],
     version = 1,

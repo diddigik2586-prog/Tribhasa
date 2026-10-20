@@ -30,6 +30,7 @@ import org.tribhasa.sodhamitra.domain.Display
 import org.tribhasa.sodhamitra.ui.AppViewModel
 import org.tribhasa.sodhamitra.ui.Route
 import org.tribhasa.sodhamitra.ui.common.AppScaffold
+import org.tribhasa.sodhamitra.ui.common.rememberFlow
 import org.tribhasa.sodhamitra.ui.common.ConfirmDeleteDialog
 import org.tribhasa.sodhamitra.ui.common.EmptyHint
 import org.tribhasa.sodhamitra.ui.common.HintLine
@@ -56,9 +57,9 @@ fun RecordCard(lines: List<Pair<String, String>>, onEdit: () -> Unit, onDelete: 
 @Composable
 fun BibliographyScreen(vm: AppViewModel, projectId: Long) {
     val d = Display(LocalContext.current)
-    val books by vm.repo.bibBooks(projectId).collectAsState(initial = emptyList())
-    val mss by vm.repo.manuscripts(MsScope.BIB, projectId).collectAsState(initial = emptyList())
-    val articles by vm.repo.bibArticles(projectId).collectAsState(initial = emptyList())
+    val books by rememberFlow(projectId) { vm.repo.bibBooks(projectId) }.collectAsState(initial = emptyList())
+    val mss by rememberFlow(MsScope.BIB, projectId) { vm.repo.manuscripts(MsScope.BIB, projectId) }.collectAsState(initial = emptyList())
+    val articles by rememberFlow(projectId) { vm.repo.bibArticles(projectId) }.collectAsState(initial = emptyList())
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 
     AppScaffold(title = stringResource(R.string.bibliography), onBack = { vm.back() }) { padding ->
@@ -99,8 +100,8 @@ fun BibliographyScreen(vm: AppViewModel, projectId: Long) {
 @Composable
 fun NotesScreen(vm: AppViewModel, projectId: Long) {
     val d = Display(LocalContext.current)
-    val notes by vm.repo.notes(projectId).collectAsState(initial = emptyList())
-    val citations by vm.repo.citationRows(projectId).collectAsState(initial = emptyList())
+    val notes by rememberFlow(projectId) { vm.repo.notes(projectId) }.collectAsState(initial = emptyList())
+    val citations by rememberFlow(projectId) { vm.repo.citationRows(projectId) }.collectAsState(initial = emptyList())
     val expanded = rememberExpanded()
     var pending by remember { mutableStateOf<PendingDelete?>(null) }
 
@@ -115,7 +116,7 @@ fun NotesScreen(vm: AppViewModel, projectId: Long) {
                 ExpandableItem(
                     title = n.title, expanded = n.id in expanded,
                     onToggle = { if (n.id in expanded) expanded.remove(n.id) else expanded.add(n.id) },
-                    description = vm.repo.noteDescription(n.id),
+                    description = rememberFlow(n.id) { vm.repo.noteDescription(n.id) },
                     onEdit = { vm.go(Route.NoteEditor(projectId, n.id)) },
                     onDelete = { pending = PendingDelete(R.string.delete_note_msg) { vm.launch { vm.repo.deleteNote(n.id) } } },
                 )

@@ -65,9 +65,12 @@ class RepositoryTest {
 
     @Test fun descriptions_of_any_length_are_stored_and_read_back_unchanged() = runBlocking {
         val p = repo.saveProject(ProjectKind.BOOK, null, "Big book")
-        val n = repo.saveNote(p, null, "Long note", "x".repeat(1_500_000) + "\nಕನ್ನಡ ಸಂಸ್ಕೃತ")
-        val back = repo.noteDescriptionOnce(n)
-        assertEquals("x".repeat(1_500_000) + "\nಕನ್ನಡ ಸಂಸ್ಕೃತ", back)   // no limit is imposed by the app
+        val long = "x".repeat(1_500_000) + "\nಕನ್ನಡ ಸಂಸ್ಕೃತ 😀".repeat(100_000)   // ~ 3 MB of mixed text, emoji included
+        val n = repo.saveNote(p, null, "Long note", long)
+        assertEquals(long, repo.noteDescriptionOnce(n))   // no limit is imposed by the app
+        assertTrue(db.openHelper.readableDatabase.query("select count(*) from note_description_chunks").use { it.moveToFirst(); it.getInt(0) } > 5)
+        repo.saveNote(p, n, "Long note", "short now")
+        assertEquals("short now", repo.noteDescriptionOnce(n))   // old chunks are replaced, not appended
     }
 
     @Test fun deleting_a_project_removes_everything_inside_it() = runBlocking {
