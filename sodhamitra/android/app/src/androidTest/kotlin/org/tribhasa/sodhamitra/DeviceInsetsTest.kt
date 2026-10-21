@@ -74,13 +74,34 @@ class DeviceInsetsTest {
     }
 
     /** a real system-level input command (it goes through Android's input dispatcher and the system gesture detection) */
-    private fun shell(cmd: String) {
+    private fun shell(cmd: String): String {
         val pfd = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(cmd)
-        ParcelFileDescriptor.AutoCloseInputStream(pfd).use { it.readBytes() }
+        return ParcelFileDescriptor.AutoCloseInputStream(pfd).use { String(it.readBytes()) }
+    }
+
+    /** records the touch events that the activity really receives, to see in the CI log what a real swipe looked like */
+    private val touches = mutableListOf<String>()
+    private fun spyOnTouches() = rule.runOnUiThread {
+        val w = rule.activity.window
+        val orig = w.callback
+        w.callback = object : android.view.Window.Callback by orig {
+            override fun dispatchTouchEvent(e: android.view.MotionEvent): Boolean {
+                synchronized(touches) { touches.add("${android.view.MotionEvent.actionToString(e.actionMasked)}@${e.x.toInt()},${e.y.toInt()} source=${e.source}") }
+                return orig.dispatchTouchEvent(e)
+            }
+        }
+    }
+    private fun logTouches() = synchronized(touches) {
+        log("touch events received by the activity: ${touches.size}; first=${touches.take(3)} last=${touches.takeLast(3)}")
     }
     private fun menuIsOpen() = rule.onAllNodes(hasContentDescription("Close menu")).fetchSemanticsNodes().isNotEmpty()
 
-    private fun log(msg: String) { Log.i("InsetsTest", msg); println("INSETS[$prefix] $msg") }
+    /** goes to logcat and to a text file that the CI script pulls together with the screenshots */
+    private fun log(msg: String) {
+        Log.i("InsetsTest", msg)
+        val dir = File(rule.activity.getExternalFilesDir(null), "test-shots").apply { mkdirs() }
+        File(dir, "$prefix-insets.log").appendText("$msg\n")
+    }
 
     @Test fun home_bars_menu_and_cards_respect_the_system_bars() {
         await("PhD Research Plan")
@@ -159,8 +180,11 @@ class DeviceInsetsTest {
         await("PhD Research Plan")
         val w = windowW; val h = windowH
         // a real swipe from the very edge of the screen, towards the left, at mid height
-        shell("input swipe ${w - 2} ${h / 2} ${w / 2} ${h / 2} 300")
-        rule.waitUntil(10_000) { rule.waitForIdle(); menuIsOpen() }
+        spyOnTouches()
+        val out = shell("input swipe ${w - 2} ${h / 2} ${w / 2} ${h / 2} 300")
+        log("input swipe output: '${out.trim()}' (window ${w}x$h)")
+        try { rule.waitUntil(10_000) { rule.waitForIdle(); menuIsOpen() } } catch (e: Throwable) { logTouches(); shot("08-swipe-did-not-open"); throw e }
+        logTouches()
         log("the swipe opened the menu on the Homepage")
         shot("08-menu-after-real-swipe")
         // close it again (Back), go to Settings and swipe there: no menu may appear

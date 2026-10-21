@@ -18,6 +18,11 @@ note "device"
 adb shell getprop ro.build.version.release | tee "$OUT/android-version.txt"
 adb shell getprop ro.product.cpu.abi | tee -a "$OUT/android-version.txt"
 
+# A slow emulator can show a "Pixel Launcher isn't responding" dialog over the app. That dialog is not part of the app, but it covers the
+# screenshots and swallows touches, so system error dialogs are switched off for the test run.
+adb shell settings put global hide_error_dialogs 1 || true
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS > /dev/null 2>&1 || true
+
 note "install the debug APK"
 adb install -r "$APK" || exit 1
 adb shell pm list packages | grep -q "$PKG" && echo "INSTALLED: $PKG" | tee "$OUT/install.txt" || { echo "NOT INSTALLED"; exit 1; }
