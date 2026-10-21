@@ -74,7 +74,8 @@ adb shell settings put global hide_error_dialogs 1 || true
 
 note "instrumented tests on the device (real SQLite, real PdfDocument)"
 adb install -r -t "$TESTAPK" || exit 1
-adb shell am instrument -w -r "$PKG.test/androidx.test.runner.AndroidJUnitRunner" | tee "$OUT/instrumentation.txt"
+# (UpgradeKeepsDataTest needs the records of the update check and has its own run above)
+adb shell am instrument -w -r -e notClass org.tribhasa.sodhamitra.UpgradeKeepsDataTest "$PKG.test/androidx.test.runner.AndroidJUnitRunner" | tee "$OUT/instrumentation.txt"
 grep -q "FAILURES!!!" "$OUT/instrumentation.txt" && fail=1
 grep -E "^OK \(" "$OUT/instrumentation.txt" || fail=1
 
