@@ -39,10 +39,45 @@ cd android
 # → app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Needs JDK 17 or newer and the Android SDK (platform 36, build-tools 36.0.0). The debug APK is signed with a **testing** key
-that is committed on purpose (`android/testing.keystore`), so every testing build — on a computer or from GitHub Actions —
-is signed identically and a newer test build installs over an older one without losing data. It is **not** the Google Play
-key; that key is made only after the project is declared FINAL and is never committed.
+Needs JDK 17 or newer and the Android SDK (platform 36, build-tools 36.0.0; put its path in `android/local.properties` as `sdk.dir=...`).
+The testing APK is a **debug** build (`debuggable=true`) signed with the **testing** key `android/testing.keystore`. That key is committed on
+purpose and its password is in `app/build.gradle.kts`: it is public and is **not** the release key. A testing build can never update a release build.
+
+## Release build (signed, not debuggable)
+
+The release APK is signed with a **private release key that is not in this project, not in GitHub and not in the source ZIP**.
+
+1. Keep the key file (for example `sodhamitra-release.jks`) in a private place **outside** the project folder.
+2. Create the text file `android/release-signing.properties` (it is listed in `.gitignore`; never commit it):
+
+   ```
+   storeFile=/full/path/to/sodhamitra-release.jks
+   storePassword=...
+   keyAlias=sodhamitra-release
+   keyPassword=...
+   ```
+
+   (Instead of the file, the environment variables `SODHAMITRA_RELEASE_STORE_FILE`, `SODHAMITRA_RELEASE_STORE_PASSWORD`,
+   `SODHAMITRA_RELEASE_KEY_ALIAS`, `SODHAMITRA_RELEASE_KEY_PASSWORD` can be used.)
+3. Build and verify:
+
+   ```
+   cd android
+   ./gradlew :app:assembleRelease
+   # → app/build/outputs/apk/release/app-release.apk
+   apksigner verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
+   ```
+
+Without step 2 the build still succeeds but produces `app-release-unsigned.apk`, which Android refuses to install. Signing schemes used: v1, v2 and v3.
+
+**The release key must be kept for ever.** Android only installs an update over an installed app if the update is signed with the same key. If the key is
+lost, later versions can only be installed after uninstalling the old one (which deletes the app's data). Keep at least two private copies and never publish the key or its password.
+A release APK cannot be installed over a testing build (different keys): uninstall the testing build first, after exporting what you need as PDF.
+
+## Rebuilding from the source ZIP
+
+Unzip `Sodhamitra_Source.zip`, open the folder `sodhamitra/android` and run the commands above. Everything needed to build and test is inside; the only things that are
+deliberately missing are the private release key and its password.
 
 ## Run the tests
 

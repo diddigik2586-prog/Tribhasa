@@ -9,3 +9,11 @@ android/.idea/
 captures/
 __pycache__/
 *.pyc
+# release signing material must never be committed
+RELEASE_KEY_PRIVATE/
+*.jks
+release-signing.properties
+keystore.properties
+*.p12
+*.pfx
+*.idsig

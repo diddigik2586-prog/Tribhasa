@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -20,15 +21,43 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // A fixed, non-secret TESTING key (committed on purpose) so that every testing APK, whether built on a computer or by
+    // TESTING key: a fixed, non-secret key (committed on purpose) so that every testing APK, whether built on a computer or by
     // GitHub Actions, is signed identically and a newer testing APK installs over an older one without losing data.
-    // It is NOT the Google Play release key; that key is created only after the project is declared FINAL and is never committed.
+    // It is NOT the release key. Anybody can read it in the repository, so it must never be used for a release.
+    //
+    // RELEASE key: a private key that is NEVER in the repository or in the source ZIP. Its location and passwords are read from the
+    // git-ignored file android/release-signing.properties or, for automation, from environment variables:
+    //   storeFile / SODHAMITRA_RELEASE_STORE_FILE, storePassword / SODHAMITRA_RELEASE_STORE_PASSWORD,
+    //   keyAlias / SODHAMITRA_RELEASE_KEY_ALIAS, keyPassword / SODHAMITRA_RELEASE_KEY_PASSWORD
+    // Without them `assembleRelease` still works but produces an UNSIGNED APK (app-release-unsigned.apk), which cannot be installed.
+    val releaseProps = Properties().apply {
+        val f = rootProject.file("release-signing.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+    fun releaseSetting(property: String, environment: String): String? =
+        (releaseProps.getProperty(property) ?: System.getenv(environment))?.takeIf { it.isNotBlank() }
+    val releaseStore = releaseSetting("storeFile", "SODHAMITRA_RELEASE_STORE_FILE")
+    val releaseStorePassword = releaseSetting("storePassword", "SODHAMITRA_RELEASE_STORE_PASSWORD")
+    val releaseKeyAlias = releaseSetting("keyAlias", "SODHAMITRA_RELEASE_KEY_ALIAS")
+    val releaseKeyPassword = releaseSetting("keyPassword", "SODHAMITRA_RELEASE_KEY_PASSWORD")
+
     signingConfigs {
         create("testing") {
             storeFile = file("../testing.keystore")
             storePassword = "sodhamitra-test"
             keyAlias = "sodhamitra-testing"
             keyPassword = "sodhamitra-test"
+        }
+        if (releaseStore != null && releaseStorePassword != null && releaseKeyAlias != null && releaseKeyPassword != null) {
+            create("release") {
+                storeFile = rootProject.file(releaseStore)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+                enableV1Signing = true    // JAR signature: readable by every installer and tool
+                enableV2Signing = true    // APK Signature Scheme v2 (Android 7+)
+                enableV3Signing = true    // v3 (Android 9+): supports later key rotation
+            }
         }
     }
 
@@ -38,7 +67,9 @@ android {
         }
         release {
             isMinifyEnabled = false
+            isDebuggable = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
 

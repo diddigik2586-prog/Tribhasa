@@ -50,6 +50,29 @@ adb shell pidof "$PKG" || { echo "PROCESS NOT RUNNING offline"; fail=1; }
 adb exec-out screencap -p > "$OUT/03-offline-home.png"
 adb shell dumpsys connectivity | grep -i -m3 "airplane\|NetworkAgentInfo" > "$OUT/offline-state.txt" || true
 
+note "RELEASE APK smoke test: install the signed release APK that is committed in dist/, start it, check that it is not debuggable"
+REL=../dist/Sodhamitra_Release.apk
+if [ -f "$REL" ]; then
+  adb uninstall "$PKG" > /dev/null 2>&1 || true
+  if adb install "$REL"; then
+    adb logcat -c
+    adb shell am start -W -n "$PKG/.MainActivity" | tee "$OUT/release-launch.txt"; sleep 8
+    adb shell pidof "$PKG" | tee "$OUT/release-pid.txt" || { echo "RELEASE APK IS NOT RUNNING"; fail=1; }
+    adb exec-out screencap -p > "$OUT/04-release-home.png"
+    adb shell dumpsys package "$PKG" | grep -E "versionName|versionCode|pkgFlags|flags=" | head -5 | tee "$OUT/release-package-info.txt"
+    grep -q "DEBUGGABLE" "$OUT/release-package-info.txt" && { echo "THE RELEASE APK IS DEBUGGABLE"; fail=1; }
+    adb shell dumpsys package "$PKG" | grep -c "android.permission.INTERNET" | tee "$OUT/release-internet-permission-count.txt" || true
+    adb logcat -d -b crash | grep -c "FATAL EXCEPTION" | tee "$OUT/release-crash-count.txt" || true
+    adb shell am force-stop "$PKG"
+  else
+    echo "THE RELEASE APK DOES NOT INSTALL"; fail=1
+  fi
+  adb uninstall "$PKG" > /dev/null 2>&1 || true
+  adb install -r "$APK" || exit 1
+else
+  echo "no release APK in dist/ (skipped)"
+fi
+
 note "UPDATE CHECK: install the previous version (0.1.0), give it data, install this build over it, check the data"
 BASE=../tools/ci/baseline/Sodhamitra-0.1.0-testing.apk
 adb uninstall "$PKG" > /dev/null 2>&1 || true
