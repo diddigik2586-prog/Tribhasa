@@ -1,10 +1,9 @@
 package org.tribhasa.sodhamitra.ui.common
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -21,6 +20,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -32,7 +34,8 @@ data class TableRowData(val id: Long, val cells: List<String>)
 
 /**
  * Adds a table (header row + one row per record) to a LazyColumn. All rows share one horizontal scroll state, so the
- * whole table slides sideways together on a phone. Tap a row to edit it; long-press for Edit / Delete.
+ * whole table slides sideways together on a phone. A plain tap does nothing (no accidental edits); long-press a row for the
+ * contextual menu, where Edit and Delete are chosen explicitly.
  */
 fun LazyListScope.recordTable(
     keyPrefix: String,
@@ -47,7 +50,7 @@ fun LazyListScope.recordTable(
         val r = rows[i]
         var menu by remember { mutableStateOf(false) }
         Box {
-            TableRow(columns, r.cells, scroll, header = false, onClick = { onEdit(r.id) }, onLongClick = { menu = true })
+            TableRow(columns, r.cells, scroll, header = false, onLongClick = { menu = true })
             ActionMenu(menu, { menu = false }, listOf(
                 MenuAction(R.string.edit) { onEdit(r.id) },
                 MenuAction(R.string.delete, destructive = true) { onDelete(r.id) },
@@ -56,20 +59,23 @@ fun LazyListScope.recordTable(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TableRow(
     columns: List<TableColumn>,
     cells: List<String>,
     scroll: ScrollState,
     header: Boolean,
-    onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
 ) {
     val line = MaterialTheme.colorScheme.outlineVariant
     val bg = if (header) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
     var m: Modifier = Modifier.horizontalScroll(scroll).height(IntrinsicSize.Min)
-    if (onClick != null) m = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick).then(m)
+    if (onLongClick != null) {
+        // long-press only: no tap action, no tap ripple, and the long-press is also offered to accessibility services
+        m = Modifier.pointerInput(onLongClick) { detectTapGestures(onLongPress = { onLongClick() }) }
+            .semantics { onLongClick(action = { onLongClick(); true }) }
+            .then(m)
+    }
     Row(m) {
         columns.forEachIndexed { i, col ->
             Box(Modifier.width(col.width).fillMaxHeight().background(bg).border(0.5.dp, line).padding(horizontal = 6.dp, vertical = 5.dp)) {

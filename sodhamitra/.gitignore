@@ -7,3 +7,5 @@ android/.idea/
 .kotlin/
 *.hprof
 captures/
+__pycache__/
+*.pyc

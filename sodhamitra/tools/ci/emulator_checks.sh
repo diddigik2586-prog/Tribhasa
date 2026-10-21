@@ -51,6 +51,20 @@ adb shell am instrument -w -r "$PKG.test/androidx.test.runner.AndroidJUnitRunner
 grep -q "FAILURES!!!" "$OUT/instrumentation.txt" && fail=1
 grep -E "^OK \(" "$OUT/instrumentation.txt" || fail=1
 
+note "V2: window insets, menu, real edge swipe and screenshots - once with gesture navigation, once with the 3-button bar"
+for MODE in gestural threebutton; do
+  note "navigation mode: $MODE"
+  adb shell cmd overlay enable-exclusive --category "com.android.internal.systemui.navbar.$MODE" | tee -a "$OUT/navmode-$MODE.txt" || true
+  sleep 4
+  adb shell am force-stop "$PKG"
+  adb shell am instrument -w -r -e shotPrefix "$MODE" -e class org.tribhasa.sodhamitra.DeviceInsetsTest "$PKG.test/androidx.test.runner.AndroidJUnitRunner" | tee "$OUT/insets-$MODE.txt"
+  grep -q "FAILURES!!!" "$OUT/insets-$MODE.txt" && fail=1
+  grep -E "^OK \(" "$OUT/insets-$MODE.txt" || fail=1
+  grep -E "INSETS\[" "$OUT/insets-$MODE.txt" | head -20
+done
+mkdir -p "$OUT/shots"; adb pull "/sdcard/Android/data/$PKG/files/test-shots/." "$OUT/shots/" || true
+ls -la "$OUT/shots" || true
+
 note "collect the PDFs written by the app on the device"
 adb pull "/sdcard/Android/data/$PKG/files/test-pdfs/." "$OUT/pdfs/" || fail=1
 ls -la "$OUT/pdfs"

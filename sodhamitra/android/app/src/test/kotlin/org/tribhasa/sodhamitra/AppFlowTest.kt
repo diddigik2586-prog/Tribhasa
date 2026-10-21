@@ -38,17 +38,19 @@ class AppFlowTest {
 
     @Test fun home_has_logo_brand_in_order_and_exactly_three_sections() {
         rule.onNodeWithContentDescription("Tribhāṣā").assertExists()
-        ui.assertOrder("Śodhamitra", "Research Planner", "©Dr. Diddigi Vamsi Krishna", "PhD Research",
-            "Individual Researcher / Author", "Editing / Translation Planner", "Settings")
+        ui.assertOrder("Śodhamitra", "Research Planner", "©Dr. Diddigi Vamsi Krishna", "PhD Research Plan",
+            "Individual Researcher / Author", "Editing / Translation Planner", "Created by Dr. Diddigi Vamsi Krishna")
+        assertFalse(ui.exists("Settings"))                      // Settings now lives in the menu (the hamburger icon), not on the page
+        assertTrue(ui.existsDesc("Open menu"))
         // the logo is above the name
         val logoTop = rule.onNodeWithContentDescription("Tribhāṣā").fetchSemanticsNode().boundsInRoot.top
         assertTrue(logoTop < ui.top("Śodhamitra"))
-        assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))   // never a duplicate attribution line
-        assertFalse(ui.exists("Created by Dr. Diddigi Vamsi Krishna")); assertFalse(ui.exists("by Dr. Diddigi Vamsi Krishna"))
+        assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))   // the copyright line under the brand appears once
+        assertEquals(1, ui.count("Created by Dr. Diddigi Vamsi Krishna"))   // and so does the footer
     }
 
     @Test fun settings_lists_exactly_the_six_options_in_order_with_the_copyright_footer() {
-        ui.click("Settings")
+        ui.openSettings()
         ui.assertOrder("Profile", "Language", "About App", "About Dr. DVK", "Support Śodhamitra", "Feedback", "©Dr. Diddigi Vamsi Krishna")
         assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))
         // the footer is at the very bottom of the page
@@ -56,7 +58,7 @@ class AppFlowTest {
     }
 
     @Test fun feedback_opens_a_prefilled_draft_and_never_sends() {
-        ui.click("Settings"); ui.click("Feedback")
+        ui.openSettings(); ui.click("Feedback")
         val intent = shadowOf(ui.app).nextStartedActivity
         assertNotNull(intent)
         assertEquals(Intent.ACTION_SENDTO, intent.action)   // a draft the user composes and sends; there is no send action
@@ -70,7 +72,7 @@ class AppFlowTest {
         val old = Feedback.starter
         Feedback.starter = { _, _ -> throw ActivityNotFoundException() }
         try {
-            ui.click("Settings"); ui.click("Feedback")
+            ui.openSettings(); ui.click("Feedback")
             ui.await("No email app found"); ui.assertShown("dvkrishna92@gmail.com", "Copy email address")
             ui.click("Copy email address")
             val cm = ui.app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -79,7 +81,7 @@ class AppFlowTest {
     }
 
     @Test fun support_page_shows_the_supplied_payment_details_and_copies_the_upi_id() {
-        ui.click("Settings"); ui.click("Support Śodhamitra")
+        ui.openSettings(); ui.click("Support Śodhamitra")
         ui.assertShown("8970500450@kotakbank", "Copy UPI ID", "Bank transfer details")
         rule.onNodeWithContentDescription("UPI QR").assertExists()
         assertFalse(ui.exists("1348857820"))            // bank section is collapsed until opened
@@ -93,12 +95,12 @@ class AppFlowTest {
     }
 
     @Test fun about_pages_have_the_copyright_once() {
-        ui.click("Settings"); ui.click("About App")
+        ui.openSettings(); ui.click("About App")
         ui.assertShown("Fonts and licences"); assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))
         ui.click("Show licence texts"); ui.await("UFL-Ubuntu-Font-Licence-1.0")
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
         ui.click("About Dr. DVK")
-        ui.assertShown("Dr. Diddigi Vamsi Krishna", "Granthapuraskāra (ग्रन्थपुरस्कार), 2020, from Karnataka Samskrit University.")
+        ui.assertShown("Dr. Diddigi Vamsi Krishna", "Sanskrit Scholar | Manuscriptologist | Researcher")
         assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))
         assertFalse(ui.exists("Veda Peetha Prashasti (2024)"))
     }
@@ -106,33 +108,34 @@ class AppFlowTest {
     // ---- Language ---------------------------------------------------------------------------------------------
 
     @Test fun choosing_a_language_in_settings_changes_the_interface_but_never_the_users_content() {
-        ui.click("PhD Research"); ui.click("+ Add Project"); ui.await("New Research Project")
+        ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis"); ui.await("Add Title of Thesis")
         ui.type("Research Title", "ರಾಮಾಯಣ — Rāmāyaṇa"); ui.save(); ui.await("ರಾಮಾಯಣ — Rāmāyaṇa")
-        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("PhD Research")
-        ui.click("Settings"); ui.click("Language")
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("PhD Research Plan")
+        ui.openSettings(); ui.click("Language")
         ui.assertShown("English", "ಕನ್ನಡ", "संस्कृतम्", "తెలుగు", "हिन्दी", "தமிழ்", "বাংলা", "ગુજરાતી", "മലയാളം", "ଓଡ଼ିଆ")
         ui.assertOrder("English", "ಕನ್ನಡ", "संस्कृतम्", "తెలుగు", "हिन्दी", "தமிழ்", "বাংলা", "ગુજરાતી", "മലയാളം", "ଓଡ଼ିଆ")
         ui.click("ಕನ್ನಡ")                                   // the activity is recreated in Kannada
         ui.await("ಭಾಷೆ")                                    // the Language page now has its Kannada title
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        ui.await("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನೆ"); assertFalse(ui.exists("PhD Research"))
-        ui.click("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನೆ")
+        ui.await("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನಾ ಯೋಜನೆ"); assertFalse(ui.exists("PhD Research Plan"))
+        ui.click("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನಾ ಯೋಜನೆ")
         ui.await("ರಾಮಾಯಣ — Rāmāyaṇa")                       // the project title is exactly as typed
         assertEquals("ರಾಮಾಯಣ — Rāmāyaṇa", runBlocking { ui.repo.projects(ProjectKind.PHD).first() }.single().title)
         // and back to English
-        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("ಸೆಟ್ಟಿಂಗ್‌ಗಳು".let { "ಸೆಟ್ಟಿಂಗ್‌ಗಳು" })
-        ui.click("ಸೆಟ್ಟಿಂಗ್‌ಗಳು"); ui.click("ಭಾಷೆ"); ui.click("English")
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.awaitDesc("ಮೆನು ತೆರೆಯಿರಿ")
+        ui.openSettings("ಮೆನು ತೆರೆಯಿರಿ", "ಸೆಟ್ಟಿಂಗ್‌ಗಳು"); ui.click("ಭಾಷೆ"); ui.click("English")
         ui.await("Language")
     }
 
     // ---- Profile ----------------------------------------------------------------------------------------------
 
     @Test fun profile_has_no_mandatory_fields() {
-        ui.click("Settings"); ui.click("Profile")
-        ui.click("Save Changes"); ui.await("Profile saved.")
+        ui.openSettings(); ui.click("Profile")
+        ui.click("Save Changes"); ui.await("Profile saved.")        // an entirely empty profile can be saved ...
         assertTrue(runBlocking { ui.repo.profileOnce() }.isEmpty)
-        ui.click("Dr."); ui.type("Name", "Tester"); ui.click("Female"); ui.click("Save Changes")
+        ui.await("Edit")                                            // ... and is then shown as read-only details
+        ui.click("Edit"); ui.click("Dr."); ui.type("Name", "Tester"); ui.click("Female"); ui.click("Save Changes")
         ui.awaitDb { runBlocking { ui.repo.profileOnce() }.name == "Tester" }
         val p = runBlocking { ui.repo.profileOnce() }
         assertEquals("Dr.", p.prefix); assertEquals("Tester", p.name); assertEquals("FEMALE", p.sex)
@@ -141,8 +144,8 @@ class AppFlowTest {
     // ---- PhD Research ---------------------------------------------------------------------------------------
 
     private fun openPhdProject(title: String) {
-        ui.click("PhD Research"); ui.click("+ Add Project")
-        ui.await("New Research Project"); ui.type("Research Title", title); ui.save(); ui.await(title)
+        ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis")
+        ui.await("Add Title of Thesis"); ui.type("Research Title", title); ui.save(); ui.await(title)
         ui.click(title)
     }
 
@@ -177,9 +180,9 @@ class AppFlowTest {
     }
 
     @Test fun long_press_project_offers_edit_delete_export_and_delete_asks_first() {
-        ui.click("PhD Research"); ui.click("+ Add Project"); ui.type("Research Title", "Doomed"); ui.save(); ui.await("Doomed")
+        ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis"); ui.type("Research Title", "Doomed"); ui.save(); ui.await("Doomed")
         ui.longPress("Doomed"); ui.assertShown("Edit", "Delete", "Export")
-        ui.click("Delete"); ui.await("Delete?"); ui.assertShown("Delete this project and everything inside it? This cannot be undone.")
+        ui.click("Delete"); ui.await("Delete?"); ui.assertShown("Delete this thesis title and everything inside it? This cannot be undone.")
         ui.click("Cancel"); ui.assertShown("Doomed")                                   // cancelled: still there
         ui.longPress("Doomed"); ui.click("Delete"); ui.await("Delete?")
         ui.click("Delete", index = ui.count("Delete") - 1)                              // the dialog's confirm button
@@ -188,8 +191,8 @@ class AppFlowTest {
     }
 
     @Test fun edit_project_title_keeps_one_record() {
-        ui.click("PhD Research"); ui.click("+ Add Project"); ui.type("Research Title", "Old"); ui.save(); ui.await("Old")
-        ui.longPress("Old"); ui.click("Edit"); ui.await("Edit Research Project"); ui.replace("Research Title", "Old new"); ui.saveChanges()
+        ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis"); ui.type("Research Title", "Old"); ui.save(); ui.await("Old")
+        ui.longPress("Old"); ui.click("Edit"); ui.await("Edit Title of Thesis"); ui.replace("Research Title", "Old new"); ui.saveChanges()
         ui.await("Old new")
         assertEquals(1, runBlocking { ui.repo.projects(ProjectKind.PHD).first() }.size)
     }
@@ -222,7 +225,7 @@ class AppFlowTest {
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         // 2. Individual Researcher / Author -> Research Notes -> References / Citations -> MSS / Manuscripts
         repeat(3) { rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle() }
-        ui.await("PhD Research"); ui.click("Individual Researcher / Author"); ui.click("+ Add Project")
+        ui.await("PhD Research Plan"); ui.click("Individual Researcher / Author"); ui.click("+ Add Title of Book")
         ui.type("Book Title", "Bk"); ui.save(); ui.click("Bk"); ui.click("Research Notes")
         ui.await("References / Citations"); ui.click("+ Add", 1)   // the MSS / Manuscripts heading of the citations
         ui.assertOrder(*manuscriptLabels.toTypedArray(), "Page / Folio", "Contextual note")
@@ -321,7 +324,7 @@ class AppFlowTest {
     // ---- Individual Researcher / Author ----------------------------------------------------------------------------
 
     @Test fun individual_researcher_notes_and_citations_without_duplicate_sources() {
-        ui.click("Individual Researcher / Author"); ui.click("+ Add Project"); ui.type("Book Title", "My book"); ui.save(); ui.click("My book")
+        ui.click("Individual Researcher / Author"); ui.click("+ Add Title of Book"); ui.type("Book Title", "My book"); ui.save(); ui.click("My book")
         ui.assertOrder("Book Outline", "Research Notes")
         ui.click("Research Notes")
         ui.click("+ Add Note"); ui.type("Note Title", "Idea"); ui.type("Description", "Long thought"); ui.save(); ui.await("Idea")
@@ -338,7 +341,7 @@ class AppFlowTest {
     // ---- export ----------------------------------------------------------------------------------------------------
 
     @Test fun export_with_nothing_to_export_creates_no_pdf() {
-        ui.click("PhD Research"); ui.click("+ Add Project"); ui.type("Research Title", "Empty"); ui.save(); ui.await("Empty")
+        ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis"); ui.type("Research Title", "Empty"); ui.save(); ui.await("Empty")
         ui.longPress("Empty"); ui.click("Export")
         ui.assertOrder("Thesis Outline", "Books", "Manuscripts", "Articles"); ui.assertShown("Page: A4 Portrait")
         ui.click("Create PDF"); ui.await("Nothing to export: every selected section is empty.")

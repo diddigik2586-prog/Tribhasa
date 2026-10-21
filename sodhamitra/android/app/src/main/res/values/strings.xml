@@ -9,6 +9,14 @@
     <string name="pdf_footer_line2" translatable="false">Created by © Dr. Diddigi Vamsi Krishna</string>
     <string name="feedback_email" translatable="false">dvkrishna92@gmail.com</string>
     <string name="feedback_subject" translatable="false">Śodhamitra App Feedback</string>
+    <string name="creator_footer" translatable="false">Created by Dr. Diddigi Vamsi Krishna</string>
+    <string name="dvk_name" translatable="false">Dr. Diddigi Vamsi Krishna</string>
+    <string name="dvk_roles" translatable="false">Sanskrit Scholar | Manuscriptologist | Researcher</string>
+    <string name="dvk_bio_1" translatable="false">Dr. Diddigi Vamsi Krishna is a Sanskrit scholar and manuscriptologist specialising in Sanskrit textual studies, manuscript preservation, critical editing, cataloguing and Indic script studies. He holds a Ph.D. in Sanskrit from the University of Mysore, with research focused on the Nirukta tradition.</string>
+    <string name="dvk_bio_2" translatable="false">He serves as a Research Assistant Grade II at the Oriental Research Institute (ORI), University of Mysore, Mysuru, contributing to manuscript research, scholarly editing, archival documentation and publication. As Coordinator of the ORI Digital Books Project, he is involved in digitisation, digital preservation and the documentation of scholarly collections.</string>
+    <string name="dvk_bio_3" translatable="false">His scholarly interests include Sanskrit textual scholarship, multilingual manuscripts, transliteration, traditional knowledge systems and digital heritage preservation. He has also contributed to editorial activities, academic publications and manuscriptology training.</string>
+    <string name="dvk_bio_4" translatable="false">Dr. Krishna is the Founding Director of Shimshumara Shodha Pratishthanam, Mysuru, and has served as Honorary Chief Editor at Adishila Publication, Bengaluru. He has also served as a reviewer for the Jahnavi Sanskrit e-Journal.</string>
+    <string name="dvk_bio_5" translatable="false">He received the Grantha Puraskara (2020) from Karnataka Samskrit University for his Sanskrit work Niruktacintanam and the Saṃskṛta-Suptanidhi-Ācārya recognition in 2014.</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="save">Save</string>
@@ -23,36 +31,44 @@
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
     <string name="delete_title">Delete?</string>
-    <string name="delete_project_msg">Delete this project and everything inside it? This cannot be undone.</string>
+    <string name="delete_thesis_msg">Delete this thesis title and everything inside it? This cannot be undone.</string>
+    <string name="delete_book_title_msg">Delete this book title and everything inside it? This cannot be undone.</string>
     <string name="delete_chapter_msg">Delete this chapter and all of its points? This cannot be undone.</string>
     <string name="delete_point_msg">Delete this point and its description? This cannot be undone.</string>
     <string name="delete_note_msg">Delete this note and its description? This cannot be undone.</string>
     <string name="delete_record_msg">Delete this record? This cannot be undone.</string>
     <string name="delete_citation_msg">Delete this citation? This cannot be undone.</string>
     <string name="hint_longpress">Long-press an item to edit or delete it.</string>
-    <string name="hint_longpress_project">Long-press a project title for Edit, Delete or Export.</string>
+    <string name="hint_longpress_thesis">Long-press a thesis title for Edit, Delete or Export.</string>
+    <string name="hint_longpress_book_title">Long-press a book title for Edit, Delete or Export.</string>
     <string name="home_phd">PhD Research</string>
+    <string name="home_phd_plan">PhD Research Plan</string>
     <string name="home_individual">Individual Researcher / Author</string>
     <string name="home_planner">Editing / Translation Planner</string>
     <string name="settings_title">Settings</string>
+    <string name="menu_title">Menu</string>
+    <string name="menu_open">Open menu</string>
+    <string name="menu_close">Close menu</string>
     <string name="settings_profile">Profile</string>
     <string name="settings_language">Language</string>
     <string name="settings_about_app">About App</string>
     <string name="settings_about_dvk">About Dr. DVK</string>
     <string name="settings_support">Support Śodhamitra</string>
     <string name="settings_feedback">Feedback</string>
-    <string name="add_project">+ Add Project</string>
+    <string name="add_thesis_title">+ Add Title of Thesis</string>
+    <string name="add_book_title">+ Add Title of Book</string>
     <string name="add_plus">+ Add</string>
     <string name="add_chapter">+ Add Chapter</string>
     <string name="add_point">+ Add Point</string>
     <string name="add_note">+ Add Note</string>
     <string name="research_title_label">Research Title</string>
     <string name="book_title_label">Book Title</string>
-    <string name="new_phd_project">New Research Project</string>
-    <string name="edit_phd_project">Edit Research Project</string>
-    <string name="new_book_project">New Book Project</string>
-    <string name="edit_book_project">Edit Book Project</string>
-    <string name="empty_projects">No projects yet. Tap “+ Add Project” to begin.</string>
+    <string name="new_phd_project">Add Title of Thesis</string>
+    <string name="edit_phd_project">Edit Title of Thesis</string>
+    <string name="new_book_project">Add Title of Book</string>
+    <string name="edit_book_project">Edit Title of Book</string>
+    <string name="empty_thesis_titles">No thesis titles yet. Tap “+ Add Title of Thesis” to begin.</string>
+    <string name="empty_book_titles">No book titles yet. Tap “+ Add Title of Book” to begin.</string>
     <string name="thesis_outline">Thesis Outline</string>
     <string name="book_outline">Book Outline</string>
     <string name="bibliography">Bibliography</string>
@@ -143,7 +159,7 @@
     <string name="future_trans_list">Future Trans List</string>
     <string name="heading_manuscript">Manuscript</string>
     <string name="heading_book">Book</string>
-    <string name="table_hint">Swipe sideways to see all columns. Tap a row to edit it; long-press for more.</string>
+    <string name="table_hint">Swipe sideways to see all columns. Long-press a row to edit or delete it.</string>
     <string name="export_title">Export PDF</string>
     <string name="export_choose">Choose what to include in the PDF:</string>
     <string name="export_page_portrait">Page: A4 Portrait</string>
@@ -175,6 +191,10 @@
     <string name="profile_remove_photo">Remove photograph</string>
     <string name="profile_optional_note">All profile fields are optional. Your profile is kept only on this device and appears in the header of exported PDFs.</string>
     <string name="profile_saved">Profile saved.</string>
+    <string name="profile_discard_title">Discard changes?</string>
+    <string name="profile_discard_msg">You have unsaved changes to your profile. Do you want to discard them?</string>
+    <string name="profile_keep_editing">Keep editing</string>
+    <string name="profile_discard">Discard</string>
     <string name="language_note">The interface language changes only the menus and labels of the app. What you have written is never translated or altered.</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_purpose">Śodhamitra — Research Planner is a private workspace that helps scholars plan, organise and document their research. It works entirely on this device.</string>
@@ -190,13 +210,6 @@
     <string name="about_fonts_note">The app bundles the Ubuntu font family (Ubuntu Font Licence 1.0) and Noto Sans fonts for the Indian scripts (SIL Open Font License 1.1). Their licence texts can be read below.</string>
     <string name="about_show_licences">Show licence texts</string>
     <string name="about_hide_licences">Hide licence texts</string>
-    <string name="dvk_p1">Dr. Diddigi Vamsi Krishna is a Sanskrit scholar, manuscriptologist and researcher.</string>
-    <string name="dvk_p2">He holds the M.A. and Ph.D. degrees.</string>
-    <string name="dvk_p3">He is currently a Research Assistant at the Oriental Research Institute, University of Mysore, where he coordinates several major projects.</string>
-    <string name="dvk_p4">He is the Founding Director of Shimshumara Shodha Pratishthanam, Mysuru.</string>
-    <string name="dvk_p5">His research and scholarly contributions lie in Sanskrit studies and manuscriptology.</string>
-    <string name="dvk_recognition_title">Recognition</string>
-    <string name="dvk_recognition">Granthapuraskāra (ग्रन्थपुरस्कार), 2020, from Karnataka Samskrit University.</string>
     <string name="support_intro">Śodhamitra is free for everyone. If it helps your work, you may make a voluntary contribution towards its continued development.</string>
     <string name="support_optional">Contributions are entirely optional. Every research feature remains available without contributing.</string>
     <string name="support_scan">Scan with any UPI app</string>

@@ -66,9 +66,15 @@ class LanguagesTest {
             try {
 
             // Home: the logo block, then the three sections and Settings, all in the chosen language
-            ui.await(s(R.string.home_phd), 20_000)
-            ui.assertOrder("Śodhamitra", "Research Planner", "©Dr. Diddigi Vamsi Krishna", s(R.string.home_phd), s(R.string.home_individual), s(R.string.home_planner), s(R.string.settings_title))
+            ui.await(s(R.string.home_phd_plan), 20_000)
+            ui.assertOrder("Śodhamitra", "Research Planner", "©Dr. Diddigi Vamsi Krishna", s(R.string.home_phd_plan), s(R.string.home_individual), s(R.string.home_planner),
+                "Created by Dr. Diddigi Vamsi Krishna")
             shot("$tag-01-home")
+
+            // the menu (hamburger icon) opens from the right and lists the destinations in this language
+            ui.clickDesc(s(R.string.menu_open))
+            ui.assertOrder(s(R.string.menu_title), s(R.string.settings_profile), s(R.string.settings_language), s(R.string.settings_title))
+            shot("$tag-01b-menu")
 
             // Settings: six options in order, copyright footer
             ui.click(s(R.string.settings_title))
@@ -76,7 +82,7 @@ class LanguagesTest {
                 s(R.string.settings_support), s(R.string.settings_feedback), "©Dr. Diddigi Vamsi Krishna")
             shot("$tag-02-settings")
 
-            ui.click(s(R.string.settings_about_dvk)); ui.await(s(R.string.dvk_recognition_title)); shot("$tag-03-about-dvk"); back()
+            ui.click(s(R.string.settings_about_dvk)); ui.await("Dr. Diddigi Vamsi Krishna"); shot("$tag-03-about-dvk"); back()
             ui.click(s(R.string.settings_about_app)); ui.await(s(R.string.about_fonts_title)); shot("$tag-04-about-app"); back()
             ui.click(s(R.string.settings_support)); ui.await(s(R.string.support_copy_upi)); shot("$tag-05-support"); back()
             back()   // Settings -> Home

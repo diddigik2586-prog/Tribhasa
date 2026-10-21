@@ -60,11 +60,11 @@ class PdfRenderer(private val fonts: PdfFonts, private val doc: PdfDoc, private 
     private val bottom = pageH - footerReserve
     private val contentW = pageW - 2 * margin
     private val ink = Color.BLACK
-    private val accent = 0xFF1D1673.toInt()
+    private val accent = 0xFF800000.toInt()                    // the approved Maroon (headings); the paper itself stays white
     private val muted = 0xFF555555.toInt()
     private val line = Paint().apply { color = 0xFF9A9A9A.toInt(); style = Paint.Style.STROKE; strokeWidth = 0.5f }
-    private val fillHead = Paint().apply { color = 0xFFE5E2FF.toInt(); style = Paint.Style.FILL }
-    private val fillLabel = Paint().apply { color = 0xFFF3EDE0.toInt(); style = Paint.Style.FILL }
+    private val fillHead = Paint().apply { color = 0xFFF3D9D5.toInt(); style = Paint.Style.FILL }   // table header: maroon tint
+    private val fillLabel = Paint().apply { color = 0xFFFFF6D8.toInt(); style = Paint.Style.FILL }   // record labels: warm ivory
 
     private lateinit var canvas: Canvas
     private var y = top

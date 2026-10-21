@@ -24,6 +24,16 @@ FIXED = [
     ("pdf_footer_line2", "Created by © Dr. Diddigi Vamsi Krishna"),
     ("feedback_email", "dvkrishna92@gmail.com"),
     ("feedback_subject", "Śodhamitra App Feedback"),
+    # V2: the creator footer of the Hero (splash) page and the Homepage, exactly as specified
+    ("creator_footer", "Created by Dr. Diddigi Vamsi Krishna"),
+    # V2: the author-approved biography, reproduced verbatim (it is shown unchanged in every interface language)
+    ("dvk_name", "Dr. Diddigi Vamsi Krishna"),
+    ("dvk_roles", "Sanskrit Scholar | Manuscriptologist | Researcher"),
+    ("dvk_bio_1", "Dr. Diddigi Vamsi Krishna is a Sanskrit scholar and manuscriptologist specialising in Sanskrit textual studies, manuscript preservation, critical editing, cataloguing and Indic script studies. He holds a Ph.D. in Sanskrit from the University of Mysore, with research focused on the Nirukta tradition."),
+    ("dvk_bio_2", "He serves as a Research Assistant Grade II at the Oriental Research Institute (ORI), University of Mysore, Mysuru, contributing to manuscript research, scholarly editing, archival documentation and publication. As Coordinator of the ORI Digital Books Project, he is involved in digitisation, digital preservation and the documentation of scholarly collections."),
+    ("dvk_bio_3", "His scholarly interests include Sanskrit textual scholarship, multilingual manuscripts, transliteration, traditional knowledge systems and digital heritage preservation. He has also contributed to editorial activities, academic publications and manuscriptology training."),
+    ("dvk_bio_4", "Dr. Krishna is the Founding Director of Shimshumara Shodha Pratishthanam, Mysuru, and has served as Honorary Chief Editor at Adishila Publication, Bengaluru. He has also served as a reviewer for the Jahnavi Sanskrit e-Journal."),
+    ("dvk_bio_5", "He received the Grantha Puraskara (2020) from Karnataka Samskrit University for his Sanskrit work Niruktacintanam and the Saṃskṛta-Suptanidhi-Ācārya recognition in 2014."),
 ]
 
 def esc(s):

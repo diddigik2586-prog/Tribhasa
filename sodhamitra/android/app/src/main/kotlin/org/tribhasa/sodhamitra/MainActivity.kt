@@ -3,7 +3,9 @@ package org.tribhasa.sodhamitra
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -12,10 +14,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,7 +69,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        // Edge-to-edge with the status bar kept visible: its icons are light because a maroon bar is always drawn behind them;
+        // the navigation bar's icons are dark by default and are switched to light on the screens that end in the maroon footer (see Root).
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
+        )
         super.onCreate(savedInstanceState)
         setContent { SodhamitraTheme { Root(vm) } }
     }
@@ -75,6 +85,18 @@ fun Root(vm: AppViewModel) {
     val context = LocalContext.current
     val snack = remember { SnackbarHostState() }
     LaunchedEffect(Unit) { vm.messages.collect { snack.showSnackbar(context.getString(it)) } }
+
+    // The Hero page and the Homepage end in the maroon footer, which reaches under the navigation bar: light icons there.
+    val view = LocalView.current
+    val activity = LocalActivity.current
+    val onMaroonFooter = vm.top.route.let { it == Route.Splash || it == Route.Home }
+    SideEffect {
+        val window = activity?.window ?: return@SideEffect
+        WindowCompat.getInsetsController(window, view).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = !onMaroonFooter
+        }
+    }
     ProvideLocal(snack) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { AppNav(vm) }
     }

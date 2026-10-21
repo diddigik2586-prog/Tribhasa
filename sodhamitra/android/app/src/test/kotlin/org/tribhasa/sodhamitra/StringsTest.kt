@@ -30,7 +30,8 @@ class StringsTest {
     }
 
     @Test fun every_language_has_every_translatable_string() {
-        val fixed = setOf("app_name", "brand_name", "brand_tagline", "copyright_line", "pdf_footer_line1", "pdf_footer_line2", "feedback_email", "feedback_subject")
+        val fixed = setOf("app_name", "brand_name", "brand_tagline", "copyright_line", "pdf_footer_line1", "pdf_footer_line2", "feedback_email", "feedback_subject",
+            "creator_footer", "dvk_name", "dvk_roles", "dvk_bio_1", "dvk_bio_2", "dvk_bio_3", "dvk_bio_4", "dvk_bio_5")
         val keys = en.keys - fixed
         assertTrue(keys.size > 200)
         for ((lang, map) in all) {
@@ -82,22 +83,46 @@ class StringsTest {
         assertEquals("Śodhamitra — Research Planner", en["pdf_footer_line1"])
         assertEquals("Created by © Dr. Diddigi Vamsi Krishna", en["pdf_footer_line2"])
         assertEquals("dvkrishna92@gmail.com", en["feedback_email"]); assertEquals("Śodhamitra App Feedback", en["feedback_subject"])
-        // the creator-attribution phrases are not used on screens: the PDF footer is the only "Created by"
+        // V2: the creator footer of the Hero page and the Homepage, exactly
+        assertEquals("Created by Dr. Diddigi Vamsi Krishna", en["creator_footer"])
+        // "Created by" appears only in the PDF footer and in that one footer string
         for ((lang, m) in all) for ((k, v) in m) {
-            if (k == "pdf_footer_line2") continue
+            if (k == "pdf_footer_line2" || k == "creator_footer") continue
             assertTrue("$lang/$k contains a creator phrase", !v.contains("Created by") && !v.contains("by Dr. Diddigi"))
         }
     }
 
-    @Test fun biography_uses_only_supplied_facts() {
-        val bio = listOf("dvk_p1", "dvk_p2", "dvk_p3", "dvk_p4", "dvk_p5", "dvk_recognition_title", "dvk_recognition")
-        for ((lang, m) in all) {
-            val text = bio.joinToString(" ") { m.getValue(it) }
-            assertTrue("$lang: Granthapuraskāra 2020", text.contains("Granthapuraskāra (ग्रन्थपुरस्कार)") && text.contains("2020"))
-            assertTrue("$lang: Karnataka Samskrit University", text.contains("Karnataka Samskrit University"))
-            assertTrue("$lang: ORI", text.contains("Oriental Research Institute, University of Mysore"))
-            assertTrue("$lang: founding director institution", text.contains("Shimshumara Shodha Pratishthanam"))
-            assertTrue("$lang: unsupported awards must not appear", !text.contains("Veda Peetha") && !text.contains("Literary Saviours") && !text.contains("2024") && !text.contains("2025"))
+    /** The author-approved biography, character for character as supplied (V2 specification, section 8). */
+    private val approvedBiography = listOf(
+        "dvk_name" to "Dr. Diddigi Vamsi Krishna",
+        "dvk_roles" to "Sanskrit Scholar | Manuscriptologist | Researcher",
+        "dvk_bio_1" to "Dr. Diddigi Vamsi Krishna is a Sanskrit scholar and manuscriptologist specialising in Sanskrit textual studies, manuscript preservation, critical editing, cataloguing and Indic script studies. He holds a Ph.D. in Sanskrit from the University of Mysore, with research focused on the Nirukta tradition.",
+        "dvk_bio_2" to "He serves as a Research Assistant Grade II at the Oriental Research Institute (ORI), University of Mysore, Mysuru, contributing to manuscript research, scholarly editing, archival documentation and publication. As Coordinator of the ORI Digital Books Project, he is involved in digitisation, digital preservation and the documentation of scholarly collections.",
+        "dvk_bio_3" to "His scholarly interests include Sanskrit textual scholarship, multilingual manuscripts, transliteration, traditional knowledge systems and digital heritage preservation. He has also contributed to editorial activities, academic publications and manuscriptology training.",
+        "dvk_bio_4" to "Dr. Krishna is the Founding Director of Shimshumara Shodha Pratishthanam, Mysuru, and has served as Honorary Chief Editor at Adishila Publication, Bengaluru. He has also served as a reviewer for the Jahnavi Sanskrit e-Journal.",
+        "dvk_bio_5" to "He received the Grantha Puraskara (2020) from Karnataka Samskrit University for his Sanskrit work Niruktacintanam and the Saṃskṛta-Suptanidhi-Ācārya recognition in 2014.",
+        "copyright_line" to "©Dr. Diddigi Vamsi Krishna",
+    )
+
+    @Test fun biography_is_the_approved_text_verbatim() {
+        for ((key, text) in approvedBiography) assertEquals("string $key", text, en[key])
+        // the biography is fixed text: not translated, so it reads the same in every interface language
+        for ((lang, m) in all) if (lang != "en") for ((key, _) in approvedBiography) assertTrue("$lang must not carry $key", key !in m)
+        // nothing from the superseded draft remains
+        for (k in listOf("dvk_p1", "dvk_p2", "dvk_p3", "dvk_p4", "dvk_p5", "dvk_recognition", "dvk_recognition_title")) assertTrue("$k removed", k !in en)
+        // and nothing the author did not supply
+        val all = approvedBiography.joinToString(" ") { it.second }
+        assertTrue(!all.contains("Veda Peetha") && !all.contains("2024") && !all.contains("2025"))
+        assertTrue(all.contains("Founding Director"))
+    }
+
+    /** The About App text is the approved V1 text, byte for byte in all ten languages: the snapshot was taken before the V2 changes. */
+    @Test fun about_app_text_is_unchanged() {
+        val rows = javaClass.classLoader!!.getResourceAsStream("about_app_v1_snapshot.txt")!!.bufferedReader(Charsets.UTF_8).readLines().filter { it.isNotBlank() }
+        assertEquals(14 * 10, rows.size)
+        for (row in rows) {
+            val (lang, key, text) = row.split('\t', limit = 3)
+            assertEquals("$lang/$key", text, all.getValue(lang)[key])
         }
     }
 

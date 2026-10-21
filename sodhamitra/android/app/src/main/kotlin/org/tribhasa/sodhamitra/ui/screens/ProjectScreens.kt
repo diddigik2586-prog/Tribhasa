@@ -83,15 +83,21 @@ fun ProjectsScreen(vm: AppViewModel, kind: String) {
             Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { Button(onClick = { vm.go(Route.ProjectForm(kind, null)) }, modifier = Modifier.fillMaxWidth()) { Txt(R.string.add_project, fontWeight = FontWeight.Medium) } }
-            if (projects.isEmpty()) item { EmptyHint(R.string.empty_projects) } else item { HintLine(R.string.hint_longpress_project) }
+            // "Add Title of Thesis" in PhD Research, "Add Title of Book" in the Individual Researcher / Author section
+            item {
+                Button(onClick = { vm.go(Route.ProjectForm(kind, null)) }, modifier = Modifier.fillMaxWidth()) {
+                    Txt(if (isPhd) R.string.add_thesis_title else R.string.add_book_title, fontWeight = FontWeight.Medium)
+                }
+            }
+            if (projects.isEmpty()) item { EmptyHint(if (isPhd) R.string.empty_thesis_titles else R.string.empty_book_titles) }
+            else item { HintLine(if (isPhd) R.string.hint_longpress_thesis else R.string.hint_longpress_book_title) }
             items(projects, key = { it.id }) { p ->
                 LongPressCard(
                     onClick = { vm.go(Route.Project(p.id)) },
                     actions = listOf(
                         MenuAction(R.string.edit) { vm.go(Route.ProjectForm(kind, p.id)) },
                         MenuAction(R.string.delete, destructive = true) {
-                            pending = PendingDelete(R.string.delete_project_msg) { vm.launch { vm.repo.deleteProject(p.id) } }
+                            pending = PendingDelete(if (isPhd) R.string.delete_thesis_msg else R.string.delete_book_title_msg) { vm.launch { vm.repo.deleteProject(p.id) } }
                         },
                         MenuAction(R.string.export) { vm.go(Route.Export(if (isPhd) ExportTarget.Phd(p.id) else ExportTarget.Book(p.id))) },
                     ),

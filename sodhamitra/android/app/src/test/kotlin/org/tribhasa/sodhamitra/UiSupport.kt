@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -61,7 +62,18 @@ class Ui(val rule: ComposeTestRule) {
         assertEquals("overlap in ${texts.toList()}", tops.distinct(), tops)
     }
 
-    fun skipSplash() { await("PhD Research") }
+    fun skipSplash() { await("PhD Research Plan") }
+
+    // ---- icons are found by their content description ----
+    fun existsDesc(d: String) = rule.onAllNodesWithContentDescription(d).fetchSemanticsNodes().isNotEmpty()
+    fun awaitDesc(d: String, timeoutMs: Long = 15_000) {
+        try { rule.waitUntil(timeoutMs) { rule.waitForIdle(); existsDesc(d) } }
+        catch (e: androidx.compose.ui.test.ComposeTimeoutException) { throw AssertionError("icon '$d' did not appear within $timeoutMs ms", e) }
+    }
+    fun clickDesc(d: String, index: Int = 0) { awaitDesc(d); rule.onAllNodesWithContentDescription(d)[index].performClick(); rule.waitForIdle() }
+
+    /** opens the Homepage menu (the hamburger icon at the top right) and chooses Settings in it */
+    fun openSettings(menuLabel: String = "Open menu", settingsLabel: String = "Settings") { clickDesc(menuLabel); click(settingsLabel) }
 
     /** presses Save (new record) or Save Changes (existing record) and waits until the form has closed */
     fun save() { click("Save"); awaitGone("Save") }
@@ -70,6 +82,15 @@ class Ui(val rule: ComposeTestRule) {
     /** waits until the database satisfies [condition] (writes finish on another thread) */
     fun awaitDb(timeoutMs: Long = 15_000, condition: () -> Boolean) {
         rule.waitUntil(timeoutMs) { rule.waitForIdle(); condition() }
+    }
+
+    /** draws the activity's window into a bitmap (software canvas, as the screenshot tour does) so that colours can be checked */
+    fun snapshot(activity: android.app.Activity): android.graphics.Bitmap {
+        rule.waitForIdle()
+        val v = activity.window.decorView
+        val bmp = android.graphics.Bitmap.createBitmap(v.width, v.height, android.graphics.Bitmap.Config.ARGB_8888)
+        rule.runOnUiThread { v.draw(android.graphics.Canvas(bmp)) }
+        return bmp
     }
 
     fun count(text: String) = rule.onAllNodesWithText(text).fetchSemanticsNodes().size

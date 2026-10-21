@@ -29,8 +29,10 @@ class DeviceUiTest {
     @Test fun launch_navigate_and_apply_the_stakeholder_place_rule() {
         val repo = (rule.activity.application as SodhamitraApp).repository
         runBlocking { repo.db.clearAllTables() }
-        await("PhD Research")
-        listOf("PhD Research", "Individual Researcher / Author", "Editing / Translation Planner", "Settings").forEach { assertTrue(it, exists(it)) }
+        await("PhD Research Plan")
+        listOf("PhD Research Plan", "Individual Researcher / Author", "Editing / Translation Planner", "Created by Dr. Diddigi Vamsi Krishna")
+            .forEach { assertTrue(it, exists(it)) }
+        assertTrue("Settings now lives in the menu", !exists("Settings"))
         click("Editing / Translation Planner"); click("Future Trans List"); click("+ Add", 0)
         type("Title of Book", "Device book"); type("Stakeholder", "A library"); click("Save")
         await("Place is required when Stakeholder is provided.")
