@@ -47,7 +47,7 @@ class DeviceInsetsTest {
     private fun exists(t: String) = rule.onAllNodesWithText(t).fetchSemanticsNodes().isNotEmpty()
     private fun await(t: String) = rule.waitUntil(30_000) { rule.waitForIdle(); exists(t) }
     private fun click(t: String, i: Int = 0) { await(t); rule.onAllNodesWithText(t)[i].performClick(); rule.waitForIdle() }
-    private fun openSettings() { rule.onNodeWithContentDescription("Open menu").performClick(); click("Settings") }
+    private fun openMenu() { rule.onNodeWithContentDescription("Open menu").performClick(); rule.waitForIdle() }
 
     private val decor get() = rule.activity.window.decorView
     private val windowH get() = decor.height
@@ -161,7 +161,7 @@ class DeviceInsetsTest {
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
         await("PhD Research Plan")
         // Profile: first-entry form, then the read-only details, then Edit with Cancel / Save
-        openSettings(); click("Profile"); await("Save Changes")
+        openMenu(); click("Profile"); await("Save Changes")
         rule.onNode(hasSetTextAction() and (hasText("Name"))).performTextInput("Device tester"); rule.waitForIdle()
         shot("04-profile-form")
         rule.onAllNodesWithText("Save Changes")[0].performScrollTo().performClick(); rule.waitForIdle()
@@ -171,15 +171,16 @@ class DeviceInsetsTest {
         assertTrue("Cancel above nav bar", cancel.bottom() <= windowH - b.bottom + 1)
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()   // no edits: back to the details
         await("Edit")
-        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()   // details -> Settings
-        await("Feedback")
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()   // details -> Homepage
+        await("PhD Research Plan")
         // informational pages scroll to their last line, which stays above the bars
-        click("About Dr. DVK"); await("©Dr. Diddigi Vamsi Krishna")
+        openMenu(); click("About Dr. DVK"); await("©Dr. Diddigi Vamsi Krishna")
         shot("06-about-dvk")
         val dvkLast = rule.onNode(hasText("©Dr. Diddigi Vamsi Krishna")).performScrollTo().fetchSemanticsNode()
         assertTrue("About Dr. DVK last line above the nav bar", dvkLast.bottom() <= windowH - b.bottom + 1)
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
-        click("Support Śodhamitra"); await("Copy UPI ID"); shot("07-support")
+        await("PhD Research Plan")
+        openMenu(); click("Support Śodhamitra"); await("Copy UPI ID"); shot("07-support")
         val safety = rule.onNode(hasText("Śodhamitra never asks", substring = true)).performScrollTo().fetchSemanticsNode()
         assertTrue("Support last line above the nav bar", safety.bottom() <= windowH - b.bottom + 1)
         val qr = rule.onNodeWithContentDescription("UPI QR").fetchSemanticsNode()
@@ -201,10 +202,10 @@ class DeviceInsetsTest {
         // close it again (Back), go to Settings and swipe there: no menu may appear
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
         rule.waitUntil(10_000) { rule.waitForIdle(); !menuIsOpen() }
-        openSettings(); await("Feedback")
+        openMenu(); click("About App"); await("Fonts and licences")
         shell("input swipe ${w - 2} ${h / 2} ${w / 2} ${h / 2} 300")
         Thread.sleep(1500); rule.waitForIdle()
-        assertTrue("no menu on the Settings page", !menuIsOpen() && rule.onAllNodesWithTag("menu-panel").fetchSemanticsNodes().isEmpty())
-        log("the swipe did not open a menu on Settings")
+        assertTrue("no menu on the About App page", !menuIsOpen() && rule.onAllNodesWithTag("menu-panel").fetchSemanticsNodes().isEmpty())
+        log("the swipe did not open a menu on About App")
     }
 }

@@ -72,8 +72,8 @@ class Ui(val rule: ComposeTestRule) {
     }
     fun clickDesc(d: String, index: Int = 0) { awaitDesc(d); rule.onAllNodesWithContentDescription(d)[index].performClick(); rule.waitForIdle() }
 
-    /** opens the Homepage menu (the hamburger icon at the top right) and chooses Settings in it */
-    fun openSettings(menuLabel: String = "Open menu", settingsLabel: String = "Settings") { clickDesc(menuLabel); click(settingsLabel) }
+    /** opens the Homepage menu (the hamburger icon at the top right) */
+    fun openMenu(menuLabel: String = "Open menu") { clickDesc(menuLabel) }
 
     /** presses Save (new record) or Save Changes (existing record) and waits until the form has closed */
     fun save() { click("Save"); awaitGone("Save") }

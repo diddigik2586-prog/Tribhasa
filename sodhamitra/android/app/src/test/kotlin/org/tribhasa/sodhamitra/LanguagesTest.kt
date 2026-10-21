@@ -10,6 +10,7 @@ import java.io.File
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -73,19 +74,17 @@ class LanguagesTest {
 
             // the menu (hamburger icon) opens from the right and lists the destinations in this language
             ui.clickDesc(s(R.string.menu_open))
-            ui.assertOrder(s(R.string.menu_title), s(R.string.settings_profile), s(R.string.settings_language), s(R.string.settings_title))
+            ui.assertOrder(s(R.string.menu_title), s(R.string.settings_profile), s(R.string.settings_language))
             shot("$tag-01b-menu")
 
-            // Settings: six options in order, copyright footer
-            ui.click(s(R.string.settings_title))
+            // the former Settings options are listed in the menu, one after the other, with no Settings entry
             ui.assertOrder(s(R.string.settings_profile), s(R.string.settings_language), s(R.string.settings_about_app), s(R.string.settings_about_dvk),
-                s(R.string.settings_support), s(R.string.settings_feedback), "©Dr. Diddigi Vamsi Krishna")
-            shot("$tag-02-settings")
+                s(R.string.settings_support), s(R.string.settings_feedback))
+            assertFalse(ui.exists(s(R.string.settings_title)))
 
             ui.click(s(R.string.settings_about_dvk)); ui.await("Dr. Diddigi Vamsi Krishna"); shot("$tag-03-about-dvk"); back()
-            ui.click(s(R.string.settings_about_app)); ui.await(s(R.string.about_fonts_title)); shot("$tag-04-about-app"); back()
-            ui.click(s(R.string.settings_support)); ui.await(s(R.string.support_copy_upi)); shot("$tag-05-support"); back()
-            back()   // Settings -> Home
+            ui.clickDesc(s(R.string.menu_open)); ui.click(s(R.string.settings_about_app)); ui.await(s(R.string.about_fonts_title)); shot("$tag-04-about-app"); back()
+            ui.clickDesc(s(R.string.menu_open)); ui.click(s(R.string.settings_support)); ui.await(s(R.string.support_copy_upi)); shot("$tag-05-support"); back()
 
             // Editing / Translation Planner -> Future Editing List: the user's own text is untouched
             ui.click(s(R.string.home_planner)); ui.click(s(R.string.future_editing_list))

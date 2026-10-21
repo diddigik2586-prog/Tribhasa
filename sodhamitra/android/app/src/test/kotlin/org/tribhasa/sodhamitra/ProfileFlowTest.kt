@@ -41,7 +41,7 @@ class ProfileFlowTest {
     @Test fun first_visit_shows_the_form_then_saving_shows_read_only_details_with_a_top_right_edit_button() {
         val (sc, ui) = launch()
         sc.use {
-            ui.openSettings(); ui.click("Profile")
+            ui.openMenu(); ui.click("Profile")
             ui.await("Save Changes")
             assertTrue("the editable form is shown when nothing is saved", textFields() >= 5)
             assertFalse(ui.exists("Edit"))
@@ -65,7 +65,7 @@ class ProfileFlowTest {
     @Test fun empty_fields_of_a_saved_profile_are_still_listed_with_a_dash() {
         val (sc, ui) = launch()
         sc.use {
-            ui.openSettings(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Only name"); ui.click("Save Changes"); ui.await("Edit")
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Only name"); ui.click("Save Changes"); ui.await("Edit")
             ui.assertShown("Prefix", "Sex", "Designation", "Institution", "Address", "Place")
             assertEquals(6, ui.count("—"))                         // prefix, sex, designation, institution, address and place are empty
         }
@@ -74,7 +74,7 @@ class ProfileFlowTest {
     @Test fun edit_prefills_save_returns_to_details_and_cancel_discards() {
         val (sc, ui) = launch()
         sc.use {
-            ui.openSettings(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "First"); ui.type("Place", "Mysuru"); ui.click("Save Changes"); ui.await("Edit")
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "First"); ui.type("Place", "Mysuru"); ui.click("Save Changes"); ui.await("Edit")
             // Edit -> the same form with the saved values
             ui.click("Edit")
             ui.await("Save Changes")
@@ -98,7 +98,7 @@ class ProfileFlowTest {
     @Test fun back_with_unsaved_changes_asks_first_and_never_discards_silently() {
         val (sc, ui) = launch()
         sc.use {
-            ui.openSettings(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Keep me"); ui.click("Save Changes"); ui.await("Edit")
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Keep me"); ui.click("Save Changes"); ui.await("Edit")
             ui.click("Edit"); ui.await("Save Changes")
             // no changes: Back simply returns to the details
             sc.back(ui); ui.await("Edit"); assertFalse(ui.exists("Discard changes?"))
@@ -119,14 +119,14 @@ class ProfileFlowTest {
     @Test fun first_entry_form_asks_before_leaving_with_typed_text_and_leaves_freely_when_empty() {
         val (sc, ui) = launch()
         sc.use {
-            ui.openSettings(); ui.click("Profile"); ui.await("Save Changes")
-            sc.back(ui); ui.await("Profile")                       // nothing typed: straight back to Settings
-            assertFalse(ui.exists("Discard changes?")); ui.assertShown("Feedback")
-            ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Typed")
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes")
+            sc.back(ui); ui.await("PhD Research Plan")             // nothing typed: straight back to the Homepage
+            assertFalse(ui.exists("Discard changes?"))
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Typed")
             sc.back(ui); ui.await("Discard changes?")
-            ui.click("Discard"); ui.await("Feedback")              // left without saving
+            ui.click("Discard"); ui.await("PhD Research Plan")     // left without saving
             assertEquals(0, profileRows())
-            ui.click("Profile"); ui.await("Save Changes")          // and the form is empty again
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes")   // and the form is empty again
             assertEquals(0, rule.onAllNodes(hasSetTextAction() and hasText("Typed")).fetchSemanticsNodes().size)
         }
     }
@@ -134,13 +134,13 @@ class ProfileFlowTest {
     @Test fun the_saved_profile_is_shown_again_after_the_app_is_restarted() {
         val (sc, ui) = launch()
         sc.use {
-            ui.openSettings(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Persistent"); ui.type("Designation", "Scholar"); ui.click("Save Changes"); ui.await("Edit")
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Persistent"); ui.type("Designation", "Scholar"); ui.click("Save Changes"); ui.await("Edit")
             ui.awaitDb { runBlocking { app().repository.profileOnce() }.name == "Persistent" }
         }
         // a completely new activity, view model and navigation stack (the database file is what remains)
         val (sc2, ui2) = launch()
         sc2.use {
-            ui2.openSettings(); ui2.click("Profile")
+            ui2.openMenu(); ui2.click("Profile")
             ui2.await("Edit"); ui2.assertShown("Persistent", "Scholar")
             assertEquals(0, textFields()); assertFalse(ui2.exists("Save Changes"))
             assertEquals(1, profileRows())
@@ -156,7 +156,7 @@ class ProfileCancelAfterKeepEditingTest {
         val sc = ActivityScenario.launch(MainActivity::class.java)
         val ui = Ui(rule); ui.skipSplash()
         sc.use {
-            ui.openSettings(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Abc"); ui.click("Save Changes"); ui.await("Edit")
+            ui.openMenu(); ui.click("Profile"); ui.await("Save Changes"); ui.type("Name", "Abc"); ui.click("Save Changes"); ui.await("Edit")
             ui.click("Edit"); ui.await("Cancel"); ui.type("Name", "def")
             sc.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
             ui.await("Discard changes?"); ui.click("Keep editing"); ui.awaitGone("Discard changes?")

@@ -115,8 +115,8 @@ over earlier instructions.
 * The Homepage label is **"PhD Research Plan"**; the screen it opens is still titled "PhD Research" (internal name unchanged); the label is also used in the menu.
   Translations of "PhD Research Plan" in the nine other languages are new and unreviewed.
 * The old Settings button is replaced by a **hamburger icon at the top right** of the (maroon) Homepage bar; it opens a **right-side menu**.
-  *Assumption:* "all existing destinations" was read as: the three sections, Profile, Language, Settings, About App, About Dr. DVK, Support Śodhamitra and Feedback.
-  The Settings page itself still lists exactly its six options.
+  The menu lists the three sections, Profile, Language, About App, About Dr. DVK, Support Śodhamitra and Feedback. **There is no "Settings" entry** (removed at the
+  author's request): the six options that the Settings page held are in the menu itself, so the page is no longer reachable (its code was left in place).
 * The menu closes with its X, a tap on the dimmed area, or Back. A swipe that starts within 28 dp of the right edge and moves left opens it **on the Homepage only**
   (the handler is not composed on any other screen). It only *observes* touches until the gesture is recognised, so scrolling, buttons and text fields are unaffected.
 * **Limit to know:** with Android's *gesture navigation* the system reserves the screen edges for "Back". The app asks Android to leave a 200 dp band at mid-height on the

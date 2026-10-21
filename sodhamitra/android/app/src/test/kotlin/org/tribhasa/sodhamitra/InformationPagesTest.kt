@@ -55,7 +55,7 @@ class InformationPagesTest {
     )
 
     @Test fun about_dr_dvk_shows_the_approved_biography_verbatim_in_order_and_centred() {
-        ui.openSettings(); ui.click("About Dr. DVK")
+        ui.openMenu(); ui.click("About Dr. DVK")
         ui.await(biography[0])
         val nodes = biography.map { nodeOf(it) }                          // each paragraph exists as ONE text, exactly as supplied
         for ((text, n) in biography.zip(nodes)) {
@@ -78,15 +78,15 @@ class InformationPagesTest {
     }
 
     @Test fun the_biography_is_not_translated_when_the_interface_language_changes() {
-        ui.openSettings(); ui.click("Language"); ui.click("ಕನ್ನಡ"); ui.await("ಭಾಷೆ")
-        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("ಸೆಟ್ಟಿಂಗ್‌ಗಳು")
-        ui.click("ಡಾ. ಡಿವಿಕೆ ಬಗ್ಗೆ")
+        ui.openMenu(); ui.click("Language"); ui.click("ಕನ್ನಡ"); ui.await("ಭಾಷೆ")
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.awaitDesc("ಮೆನು ತೆರೆಯಿರಿ")
+        ui.openMenu("ಮೆನು ತೆರೆಯಿರಿ"); ui.click("ಡಾ. ಡಿವಿಕೆ ಬಗ್ಗೆ")
         ui.await(biography[0])
         for (text in biography) assertEquals(text, nodeOf(text).shownText())
     }
 
     @Test fun about_app_keeps_every_approved_paragraph_in_order_and_centres_them() {
-        ui.openSettings(); ui.click("About App")
+        ui.openMenu(); ui.click("About App")
         val ctx = rule.activity
         val ids = listOf(R.string.about_purpose, R.string.about_sections, R.string.about_projects, R.string.about_notes, R.string.about_bibliography,
             R.string.about_planner, R.string.about_languages, R.string.about_storage, R.string.about_pdf)
@@ -107,7 +107,7 @@ class InformationPagesTest {
     }
 
     @Test fun support_page_is_centred_and_keeps_its_qr_code_and_payment_actions() {
-        ui.openSettings(); ui.click("Support Śodhamitra")
+        ui.openMenu(); ui.click("Support Śodhamitra")
         ui.await("Copy UPI ID")
         val rootW = rule.onRoot().fetchSemanticsNode().size.width
         for (t in listOf(
@@ -129,11 +129,10 @@ class InformationPagesTest {
     @Test fun page_headings_are_centred_in_the_top_bar_of_the_three_informational_pages() {
         val rootW = rule.onRoot().fetchSemanticsNode().size.width
         for ((entry, title) in listOf("About App" to "About App", "About Dr. DVK" to "About Dr. DVK", "Support Śodhamitra" to "Support Śodhamitra")) {
-            ui.openSettings(); ui.click(entry); ui.await("Version ${BuildConfig.VERSION_NAME}".takeIf { entry == "About App" } ?: title)
+            ui.openMenu(); ui.click(entry); ui.await("Version ${BuildConfig.VERSION_NAME}".takeIf { entry == "About App" } ?: title)
             // the title text in the bar (the first match is the bar, the settings row is gone)
             val n = ui.node(title).fetchSemanticsNode()
             assertEquals("$title centred in the bar", rootW / 2f, n.positionInRoot.x + n.size.width / 2f, 6f)
-            rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
             rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle(); ui.await("PhD Research Plan")
         }
     }
@@ -151,7 +150,7 @@ class NarrowScreenTest {
             val n = ui.node(c).fetchSemanticsNode()
             assertTrue("$c fits", n.positionInRoot.x >= 0 && n.positionInRoot.x + n.size.width <= rootW)
         }
-        ui.openSettings(); ui.click("Support Śodhamitra"); ui.await("Copy UPI ID")
+        ui.openMenu(); ui.click("Support Śodhamitra"); ui.await("Copy UPI ID")
         val qr = rule.onNodeWithContentDescription("UPI QR").fetchSemanticsNode()
         assertTrue("QR inside the screen: x=${qr.positionInRoot.x} w=${qr.size.width} of $rootW", qr.positionInRoot.x >= 0 && qr.positionInRoot.x + qr.size.width <= rootW)
         assertEquals(qr.size.width.toFloat(), qr.size.height.toFloat(), 1.5f)

@@ -45,17 +45,17 @@ class V2ScreenshotTour {
         ui.save(); ui.await("Nirukta tradition"); shot("12-phd-list"); back()
         ui.click("Individual Researcher / Author"); ui.await("+ Add Title of Book"); shot("13-book-empty"); back()
         // profile
-        ui.openSettings(); shot("20-settings"); ui.click("Profile"); ui.await("Save Changes"); shot("21-profile-form")
+        ui.openMenu(); shot("20-menu"); ui.click("Profile"); ui.await("Save Changes"); shot("21-profile-form")
         ui.click("Dr."); ui.type("Name", "Diddigi Vamsi Krishna"); ui.type("Designation", "Research Assistant"); ui.type("Place", "Mysuru")
         scrollClick("Save Changes"); ui.await("Edit"); shot("22-profile-details"); ui.awaitGone("Profile saved.")   // the message would cover the bottom buttons
         ui.click("Edit"); ui.await("Cancel"); ui.type("Name", " (edited)"); shot("23-profile-edit")
         back(); ui.await("Discard changes?"); shot("24-profile-discard-dialog"); ui.click("Keep editing"); ui.awaitGone("Discard changes?")
         scrollClick("Cancel"); ui.await("Edit")
-        back()
-        // information pages
-        ui.click("About App"); ui.await("Fonts and licences"); shot("30-about-app"); back()
-        ui.click("Support Śodhamitra"); ui.await("Copy UPI ID"); ui.click("Bank transfer details"); ui.await("1348857820"); shot("31-support-bank"); back()
         back(); ui.await("PhD Research Plan")
+        // information pages
+        ui.openMenu(); ui.click("About App"); ui.await("Fonts and licences"); shot("30-about-app"); back()
+        ui.openMenu(); ui.click("Support Śodhamitra"); ui.await("Copy UPI ID"); ui.click("Bank transfer details"); ui.await("1348857820"); shot("31-support-bank"); back()
+        ui.await("PhD Research Plan")
         // planner tables: no helper text about tapping; long-press menu
         ui.click("Editing / Translation Planner"); shot("40-planner"); ui.click("Future Editing List"); ui.await("Rāmāyaṇa palm-leaf bundle"); shot("41-editing-list")
         ui.longPress("Rāmāyaṇa palm-leaf bundle"); shot("42-editing-list-menu")

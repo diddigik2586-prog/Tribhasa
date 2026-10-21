@@ -151,8 +151,9 @@ class HomeV2Test {
         val panel = tagged("menu-panel"); val root = rule.onRoot().fetchSemanticsNode()
         assertEquals("the panel touches the right edge", root.size.width.toFloat(), panel.positionInRoot.x + panel.size.width, 2f)
         assertTrue("and does not cover the whole page", panel.positionInRoot.x > root.size.width * 0.12f)
-        for (item in listOf("Menu", "PhD Research Plan", "Individual Researcher / Author", "Editing / Translation Planner", "Profile", "Language", "Settings",
+        for (item in listOf("Menu", "PhD Research Plan", "Individual Researcher / Author", "Editing / Translation Planner", "Profile", "Language",
             "About App", "About Dr. DVK", "Support Śodhamitra", "Feedback")) assertTrue("menu item $item", inMenu(item))
+        assertFalse("the menu has no Settings entry", inMenu("Settings"))
         // 1. its close control
         rule.onNodeWithTag("menu-close").performClick(); awaitMenu(false)
         assertEquals(Route.Home, vm.top.route)
@@ -173,9 +174,10 @@ class HomeV2Test {
         rule.onNode(hasText("Profile") and hasAnyAncestor(hasTestTag("menu-panel"))).performClick(); rule.waitForIdle()
         assertEquals(Route.Profile, vm.top.route)
         back(); ui.await("PhD Research Plan"); assertFalse("the menu is closed when coming back", menuOpen())
-        // and Settings still lists exactly its six options
-        ui.openSettings()
+        // the menu lists the former Settings options one after the other and has no Settings entry
+        ui.openMenu()
         ui.assertOrder("Profile", "Language", "About App", "About Dr. DVK", "Support Śodhamitra", "Feedback")
+        assertFalse(inMenu("Settings"))
     }
 
     // ---- right-edge swipe: Homepage only ----------------------------------------------------------------------------------
@@ -205,12 +207,11 @@ class HomeV2Test {
     @Test fun the_edge_swipe_does_nothing_on_other_screens() {
         val w = rule.onRoot().fetchSemanticsNode().size.width.toFloat()
         for (open in listOf<() -> Unit>(
-            { ui.openSettings() },
-            { ui.openSettings(); ui.click("Profile") },
-            { ui.openSettings(); ui.click("Language") },
-            { ui.openSettings(); ui.click("About App") },
-            { ui.openSettings(); ui.click("About Dr. DVK") },
-            { ui.openSettings(); ui.click("Support Śodhamitra") },
+            { ui.openMenu(); ui.click("Profile") },
+            { ui.openMenu(); ui.click("Language") },
+            { ui.openMenu(); ui.click("About App") },
+            { ui.openMenu(); ui.click("About Dr. DVK") },
+            { ui.openMenu(); ui.click("Support Śodhamitra") },
             { ui.click("PhD Research Plan") },
             { ui.click("Editing / Translation Planner") },
         )) {

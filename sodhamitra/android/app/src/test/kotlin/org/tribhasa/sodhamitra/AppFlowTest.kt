@@ -49,16 +49,14 @@ class AppFlowTest {
         assertEquals(1, ui.count("Created by Dr. Diddigi Vamsi Krishna"))   // and so does the footer
     }
 
-    @Test fun settings_lists_exactly_the_six_options_in_order_with_the_copyright_footer() {
-        ui.openSettings()
-        ui.assertOrder("Profile", "Language", "About App", "About Dr. DVK", "Support Śodhamitra", "Feedback", "©Dr. Diddigi Vamsi Krishna")
-        assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))
-        // the footer is at the very bottom of the page
-        assertTrue(ui.top("©Dr. Diddigi Vamsi Krishna") > ui.top("Feedback"))
+    @Test fun the_menu_has_no_settings_entry_and_lists_the_six_former_options_in_order() {
+        ui.openMenu()
+        ui.assertOrder("Profile", "Language", "About App", "About Dr. DVK", "Support Śodhamitra", "Feedback")
+        assertFalse(ui.exists("Settings"))
     }
 
     @Test fun feedback_opens_a_prefilled_draft_and_never_sends() {
-        ui.openSettings(); ui.click("Feedback")
+        ui.openMenu(); ui.click("Feedback")
         val intent = shadowOf(ui.app).nextStartedActivity
         assertNotNull(intent)
         assertEquals(Intent.ACTION_SENDTO, intent.action)   // a draft the user composes and sends; there is no send action
@@ -72,7 +70,7 @@ class AppFlowTest {
         val old = Feedback.starter
         Feedback.starter = { _, _ -> throw ActivityNotFoundException() }
         try {
-            ui.openSettings(); ui.click("Feedback")
+            ui.openMenu(); ui.click("Feedback")
             ui.await("No email app found"); ui.assertShown("dvkrishna92@gmail.com", "Copy email address")
             ui.click("Copy email address")
             val cm = ui.app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -81,7 +79,7 @@ class AppFlowTest {
     }
 
     @Test fun support_page_shows_the_supplied_payment_details_and_copies_the_upi_id() {
-        ui.openSettings(); ui.click("Support Śodhamitra")
+        ui.openMenu(); ui.click("Support Śodhamitra")
         ui.assertShown("8970500450@kotakbank", "Copy UPI ID", "Bank transfer details")
         rule.onNodeWithContentDescription("UPI QR").assertExists()
         assertFalse(ui.exists("1348857820"))            // bank section is collapsed until opened
@@ -95,11 +93,11 @@ class AppFlowTest {
     }
 
     @Test fun about_pages_have_the_copyright_once() {
-        ui.openSettings(); ui.click("About App")
+        ui.openMenu(); ui.click("About App")
         ui.assertShown("Fonts and licences"); assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))
         ui.click("Show licence texts"); ui.await("UFL-Ubuntu-Font-Licence-1.0")
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; rule.waitForIdle()
-        ui.click("About Dr. DVK")
+        ui.openMenu(); ui.click("About Dr. DVK")
         ui.assertShown("Dr. Diddigi Vamsi Krishna", "Sanskrit Scholar | Manuscriptologist | Researcher")
         assertEquals(1, ui.count("©Dr. Diddigi Vamsi Krishna"))
         assertFalse(ui.exists("Veda Peetha Prashasti (2024)"))
@@ -111,12 +109,11 @@ class AppFlowTest {
         ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis"); ui.await("Add Title of Thesis")
         ui.type("Research Title", "ರಾಮಾಯಣ — Rāmāyaṇa"); ui.save(); ui.await("ರಾಮಾಯಣ — Rāmāyaṇa")
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("PhD Research Plan")
-        ui.openSettings(); ui.click("Language")
+        ui.openMenu(); ui.click("Language")
         ui.assertShown("English", "ಕನ್ನಡ", "संस्कृतम्", "తెలుగు", "हिन्दी", "தமிழ்", "বাংলা", "ગુજરાતી", "മലയാളം", "ଓଡ଼ିଆ")
         ui.assertOrder("English", "ಕನ್ನಡ", "संस्कृतम्", "తెలుగు", "हिन्दी", "தமிழ்", "বাংলা", "ગુજરાતી", "മലയാളം", "ଓଡ଼ିଆ")
         ui.click("ಕನ್ನಡ")                                   // the activity is recreated in Kannada
         ui.await("ಭಾಷೆ")                                    // the Language page now has its Kannada title
-        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         ui.await("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನಾ ಯೋಜನೆ"); assertFalse(ui.exists("PhD Research Plan"))
         ui.click("ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನಾ ಯೋಜನೆ")
@@ -124,14 +121,14 @@ class AppFlowTest {
         assertEquals("ರಾಮಾಯಣ — Rāmāyaṇa", runBlocking { ui.repo.projects(ProjectKind.PHD).first() }.single().title)
         // and back to English
         rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.awaitDesc("ಮೆನು ತೆರೆಯಿರಿ")
-        ui.openSettings("ಮೆನು ತೆರೆಯಿರಿ", "ಸೆಟ್ಟಿಂಗ್‌ಗಳು"); ui.click("ಭಾಷೆ"); ui.click("English")
+        ui.openMenu("ಮೆನು ತೆರೆಯಿರಿ"); ui.click("ಭಾಷೆ"); ui.click("English")
         ui.await("Language")
     }
 
     // ---- Profile ----------------------------------------------------------------------------------------------
 
     @Test fun profile_has_no_mandatory_fields() {
-        ui.openSettings(); ui.click("Profile")
+        ui.openMenu(); ui.click("Profile")
         ui.click("Save Changes"); ui.await("Profile saved.")        // an entirely empty profile can be saved ...
         assertTrue(runBlocking { ui.repo.profileOnce() }.isEmpty)
         ui.await("Edit")                                            // ... and is then shown as read-only details

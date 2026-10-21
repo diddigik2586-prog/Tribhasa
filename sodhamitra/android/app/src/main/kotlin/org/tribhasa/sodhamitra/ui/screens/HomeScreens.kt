@@ -201,7 +201,6 @@ fun HomeScreen(vm: AppViewModel) {
             HorizontalDivider(Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outlineVariant)
             DrawerItem(R.string.settings_profile) { go(Route.Profile) }
             DrawerItem(R.string.settings_language) { go(Route.Language) }
-            DrawerItem(R.string.settings_title) { go(Route.Settings) }
             HorizontalDivider(Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.outlineVariant)
             DrawerItem(R.string.settings_about_app) { go(Route.AboutApp) }
             DrawerItem(R.string.settings_about_dvk) { go(Route.AboutDvk) }
