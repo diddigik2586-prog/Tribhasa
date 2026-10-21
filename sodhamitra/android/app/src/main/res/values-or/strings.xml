@@ -15,7 +15,7 @@
     <string name="expand">ବିସ୍ତାର କରନ୍ତୁ</string>
     <string name="collapse">ସଂକୁଚିତ କରନ୍ତୁ</string>
     <string name="delete_title">ଲିଭାଇବେ କି?</string>
-    <string name="delete_thesis_msg">ଏହି ଗବେଷଣା ପ୍ରବନ୍ଧ ଶୀର୍ଷକ ଓ ଏହା ଭିତରେ ଥିବା ସବୁକିଛି ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
+    <string name="delete_thesis_msg">ଏହି ଥିସିସ୍ ଶୀର୍ଷକ ଓ ଏହା ଭିତରେ ଥିବା ସବୁକିଛି ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
     <string name="delete_book_title_msg">ଏହି ପୁସ୍ତକ ଶୀର୍ଷକ ଓ ଏହା ଭିତରେ ଥିବା ସବୁକିଛି ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
     <string name="delete_chapter_msg">ଏହି ଅଧ୍ୟାୟ ଓ ଏହାର ସବୁ ବିନ୍ଦୁ ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
     <string name="delete_point_msg">ଏହି ବିନ୍ଦୁ ଓ ଏହାର ବିବରଣୀ ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
@@ -23,7 +23,7 @@
     <string name="delete_record_msg">ଏହି ରେକର୍ଡ ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
     <string name="delete_citation_msg">ଏହି ଉଦ୍ଧୃତି ଲିଭାଇବେ କି? ଏହାକୁ ଫେରାଇ ହେବ ନାହିଁ।</string>
     <string name="hint_longpress">ସମ୍ପାଦନା କିମ୍ବା ଲିଭାଇବାକୁ ଏକ ଆଇଟମକୁ ଦୀର୍ଘ ସମୟ ଦବାନ୍ତୁ।</string>
-    <string name="hint_longpress_thesis">ସମ୍ପାଦନା, ଲିଭାଇବା କିମ୍ବା ରପ୍ତାନି ପାଇଁ ଗବେଷଣା ପ୍ରବନ୍ଧର ଶୀର୍ଷକକୁ ଦୀର୍ଘ ସମୟ ଦବାନ୍ତୁ।</string>
+    <string name="hint_longpress_thesis">ସମ୍ପାଦନା, ଲିଭାଇବା କିମ୍ବା ରପ୍ତାନି ପାଇଁ ଥିସିସ୍ ଶୀର୍ଷକକୁ ଦୀର୍ଘ ସମୟ ଦବାନ୍ତୁ।</string>
     <string name="hint_longpress_book_title">ସମ୍ପାଦନା, ଲିଭାଇବା କିମ୍ବା ରପ୍ତାନି ପାଇଁ ପୁସ୍ତକର ଶୀର୍ଷକକୁ ଦୀର୍ଘ ସମୟ ଦବାନ୍ତୁ।</string>
     <string name="home_phd">ପିଏଚ୍.ଡି. ଗବେଷଣା</string>
     <string name="home_phd_plan">ପିଏଚ୍.ଡି. ଗବେଷଣା ଯୋଜନା</string>
@@ -39,7 +39,7 @@
     <string name="settings_about_dvk">ଡ଼ଃ ଡିଭିକେ ବିଷୟରେ</string>
     <string name="settings_support">Śodhamitra କୁ ସହାୟତା କରନ୍ତୁ</string>
     <string name="settings_feedback">ମତାମତ</string>
-    <string name="add_thesis_title">+ ଗବେଷଣା ପ୍ରବନ୍ଧର ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ</string>
+    <string name="add_thesis_title">+ ଥିସିସ୍ ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ</string>
     <string name="add_book_title">+ ପୁସ୍ତକର ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ</string>
     <string name="add_plus">+ ଯୋଗ କରନ୍ତୁ</string>
     <string name="add_chapter">+ ଅଧ୍ୟାୟ ଯୋଗ କରନ୍ତୁ</string>
@@ -47,11 +47,11 @@
     <string name="add_note">+ ଟିପ୍ପଣୀ ଯୋଗ କରନ୍ତୁ</string>
     <string name="research_title_label">ଗବେଷଣା ଶୀର୍ଷକ</string>
     <string name="book_title_label">ପୁସ୍ତକର ଶୀର୍ଷକ</string>
-    <string name="new_phd_project">ଗବେଷଣା ପ୍ରବନ୍ଧର ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ</string>
-    <string name="edit_phd_project">ଗବେଷଣା ପ୍ରବନ୍ଧର ଶୀର୍ଷକ ସମ୍ପାଦନା କରନ୍ତୁ</string>
+    <string name="new_phd_project">ଥିସିସ୍ ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ</string>
+    <string name="edit_phd_project">ଥିସିସ୍ ଶୀର୍ଷକ ସମ୍ପାଦନା କରନ୍ତୁ</string>
     <string name="new_book_project">ପୁସ୍ତକର ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ</string>
     <string name="edit_book_project">ପୁସ୍ତକର ଶୀର୍ଷକ ସମ୍ପାଦନା କରନ୍ତୁ</string>
-    <string name="empty_thesis_titles">ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଗବେଷଣା ପ୍ରବନ୍ଧ ଶୀର୍ଷକ ନାହିଁ। ଆରମ୍ଭ କରିବାକୁ “+ ଗବେଷଣା ପ୍ରବନ୍ଧର ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ” ଦବାନ୍ତୁ।</string>
+    <string name="empty_thesis_titles">ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଥିସିସ୍ ଶୀର୍ଷକ ନାହିଁ। ଆରମ୍ଭ କରିବାକୁ “+ ଥିସିସ୍ ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ” ଦବାନ୍ତୁ।</string>
     <string name="empty_book_titles">ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ପୁସ୍ତକ ଶୀର୍ଷକ ନାହିଁ। ଆରମ୍ଭ କରିବାକୁ “+ ପୁସ୍ତକର ଶୀର୍ଷକ ଯୋଗ କରନ୍ତୁ” ଦବାନ୍ତୁ।</string>
     <string name="thesis_outline">ଥିସିସ୍ ରୂପରେଖା</string>
     <string name="book_outline">ପୁସ୍ତକ ରୂପରେଖା</string>

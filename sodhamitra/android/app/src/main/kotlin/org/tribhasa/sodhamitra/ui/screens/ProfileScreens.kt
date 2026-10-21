@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -204,7 +205,7 @@ private fun ProfileForm(vm: AppViewModel, initial: Profile, isNew: Boolean, onFi
         }
     }
 
-    AppScaffold(title = stringResource(R.string.settings_profile), onBack = { requestLeave() }) { padding ->
+    AppScaffold(title = stringResource(R.string.settings_profile), onBack = { requestLeave() }, modifier = Modifier.imePadding()) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

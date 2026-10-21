@@ -15,7 +15,7 @@
     <string name="expand">প্রসারিত করুন</string>
     <string name="collapse">সংকুচিত করুন</string>
     <string name="delete_title">মুছবেন?</string>
-    <string name="delete_thesis_msg">এই অভিসন্দর্ভের শিরোনাম ও এর ভিতরের সবকিছু মুছবেন? এটি আর ফেরানো যাবে না।</string>
+    <string name="delete_thesis_msg">এই থিসিসের শিরোনাম ও এর ভিতরের সবকিছু মুছবেন? এটি আর ফেরানো যাবে না।</string>
     <string name="delete_book_title_msg">এই বইয়ের শিরোনাম ও এর ভিতরের সবকিছু মুছবেন? এটি আর ফেরানো যাবে না।</string>
     <string name="delete_chapter_msg">এই অধ্যায় ও এর সব বিন্দু মুছবেন? এটি আর ফেরানো যাবে না।</string>
     <string name="delete_point_msg">এই বিন্দু ও এর বিবরণ মুছবেন? এটি আর ফেরানো যাবে না।</string>
@@ -23,7 +23,7 @@
     <string name="delete_record_msg">এই রেকর্ড মুছবেন? এটি আর ফেরানো যাবে না।</string>
     <string name="delete_citation_msg">এই উদ্ধৃতি মুছবেন? এটি আর ফেরানো যাবে না।</string>
     <string name="hint_longpress">সম্পাদনা বা মুছতে কোনো আইটেম দীর্ঘক্ষণ চেপে ধরুন।</string>
-    <string name="hint_longpress_thesis">সম্পাদনা, মোছা বা রপ্তানির জন্য অভিসন্দর্ভের শিরোনাম দীর্ঘক্ষণ চেপে ধরুন।</string>
+    <string name="hint_longpress_thesis">সম্পাদনা, মোছা বা রপ্তানির জন্য থিসিসের শিরোনাম দীর্ঘক্ষণ চেপে ধরুন।</string>
     <string name="hint_longpress_book_title">সম্পাদনা, মোছা বা রপ্তানির জন্য বইয়ের শিরোনাম দীর্ঘক্ষণ চেপে ধরুন।</string>
     <string name="home_phd">পিএইচ.ডি. গবেষণা</string>
     <string name="home_phd_plan">পিএইচ.ডি. গবেষণা পরিকল্পনা</string>
@@ -39,7 +39,7 @@
     <string name="settings_about_dvk">ডঃ ডিভিকে সম্পর্কে</string>
     <string name="settings_support">Śodhamitra-কে সহায়তা করুন</string>
     <string name="settings_feedback">মতামত</string>
-    <string name="add_thesis_title">+ অভিসন্দর্ভের শিরোনাম যোগ করুন</string>
+    <string name="add_thesis_title">+ থিসিসের শিরোনাম যোগ করুন</string>
     <string name="add_book_title">+ বইয়ের শিরোনাম যোগ করুন</string>
     <string name="add_plus">+ যোগ করুন</string>
     <string name="add_chapter">+ অধ্যায় যোগ করুন</string>
@@ -47,11 +47,11 @@
     <string name="add_note">+ টীকা যোগ করুন</string>
     <string name="research_title_label">গবেষণার শিরোনাম</string>
     <string name="book_title_label">বইয়ের শিরোনাম</string>
-    <string name="new_phd_project">অভিসন্দর্ভের শিরোনাম যোগ করুন</string>
-    <string name="edit_phd_project">অভিসন্দর্ভের শিরোনাম সম্পাদনা করুন</string>
+    <string name="new_phd_project">থিসিসের শিরোনাম যোগ করুন</string>
+    <string name="edit_phd_project">থিসিসের শিরোনাম সম্পাদনা করুন</string>
     <string name="new_book_project">বইয়ের শিরোনাম যোগ করুন</string>
     <string name="edit_book_project">বইয়ের শিরোনাম সম্পাদনা করুন</string>
-    <string name="empty_thesis_titles">এখনও কোনো অভিসন্দর্ভের শিরোনাম নেই। শুরু করতে “+ অভিসন্দর্ভের শিরোনাম যোগ করুন” চাপুন।</string>
+    <string name="empty_thesis_titles">এখনও কোনো থিসিসের শিরোনাম নেই। শুরু করতে “+ থিসিসের শিরোনাম যোগ করুন” চাপুন।</string>
     <string name="empty_book_titles">এখনও কোনো বইয়ের শিরোনাম নেই। শুরু করতে “+ বইয়ের শিরোনাম যোগ করুন” চাপুন।</string>
     <string name="thesis_outline">থিসিসের রূপরেখা</string>
     <string name="book_outline">বইয়ের রূপরেখা</string>

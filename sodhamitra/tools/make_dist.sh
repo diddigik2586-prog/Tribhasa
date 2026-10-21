@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Collects the two downloadable deliverables into sodhamitra/dist/:
-#   Sodhamitra-0.1.0-testing.apk   the installable testing APK (debug build, signed with the committed TESTING key)
+#   Sodhamitra-<version>-testing.apk   the installable testing APK (debug build, signed with the committed TESTING key)
 #   Sodhamitra-source.zip          the complete source project as committed in git (without dist/ itself)
 # Run after:  cd android && ./gradlew :app:assembleDebug
 set -euo pipefail

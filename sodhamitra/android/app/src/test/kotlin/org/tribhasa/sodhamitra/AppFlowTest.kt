@@ -197,6 +197,20 @@ class AppFlowTest {
         assertEquals(1, runBlocking { ui.repo.projects(ProjectKind.PHD).first() }.size)
     }
 
+    @Test fun thesis_and_book_sections_each_use_their_own_wording() {
+        ui.click("PhD Research Plan"); ui.click("+ Add Title of Thesis"); ui.type("Research Title", "A thesis"); ui.save(); ui.await("A thesis")
+        ui.assertShown("Long-press a thesis title for Edit, Delete or Export.")
+        ui.longPress("A thesis"); ui.click("Edit"); ui.await("Edit Title of Thesis"); ui.click("Cancel")
+        ui.longPress("A thesis"); ui.click("Delete"); ui.await("Delete this thesis title and everything inside it? This cannot be undone."); ui.click("Cancel")
+        rule.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }; ui.await("PhD Research Plan")
+        ui.click("Individual Researcher / Author"); ui.click("+ Add Title of Book"); ui.await("Add Title of Book")
+        ui.type("Book Title", "A book"); ui.save(); ui.await("A book")
+        ui.assertShown("Long-press a book title for Edit, Delete or Export.")
+        ui.longPress("A book"); ui.click("Edit"); ui.await("Edit Title of Book"); ui.click("Cancel")
+        ui.longPress("A book"); ui.click("Delete"); ui.await("Delete this book title and everything inside it? This cannot be undone."); ui.click("Cancel")
+        assertFalse(ui.exists("Delete this thesis title and everything inside it? This cannot be undone."))
+    }
+
     @Test fun bibliography_has_three_categories_each_with_its_own_add() {
         openPhdProject("B"); ui.click("Bibliography")
         ui.assertOrder("Books", "MSS / Manuscripts", "Articles"); assertEquals(3, ui.count("+ Add"))

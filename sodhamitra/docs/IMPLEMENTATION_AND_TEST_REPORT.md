@@ -1,98 +1,66 @@
-# Śodhamitra — Research Planner · implementation and test report
+# Śodhamitra — Research Planner · implementation and test report (version 0.2.0, "V2")
 
-Version **0.1.0 (testing build)** · built 20–21 October 2026 · package `org.tribhasa.sodhamitra` · minSdk 26 · targetSdk 36
+Package `org.tribhasa.sodhamitra` · minSdk 26 · targetSdk 36 · versionName 0.2.0 / versionCode 2 · database schema version 1 (unchanged).
 
-This report separates four things: **verified on a real Android device (emulator)**, **verified by automated tests on a
-computer**, **checked by looking at screenshots**, and **not done / not verifiable here**. Nothing is marked verified unless
-it was actually run.
+This report separates four things: **verified on an Android emulator by the GitHub Actions run**, **verified by automated tests on a computer**,
+**checked by looking at screenshots**, and **not done / not verifiable here**. Nothing is marked verified unless it was actually run.
 
 ## 1. Deliverables
 
 | Deliverable | Where |
 |---|---|
-| Complete source project (Gradle / Android Studio) | `sodhamitra/android/` in the repository (also `sodhamitra/dist/Sodhamitra-source.zip`) |
-| Installable testing APK (debug build, testing key) | `sodhamitra/dist/Sodhamitra-0.1.0-testing.apk` (also a GitHub Actions artifact on every run) |
-| Reproducible build and tests | `.github/workflows/sodhamitra.yml` |
-| Decisions, assumptions and open questions | `sodhamitra/docs/DECISIONS_AND_OPEN_QUESTIONS.md` |
+| Installable testing APK (debug build, testing key) | `sodhamitra/dist/Sodhamitra-0.2.0-testing.apk` |
+| Complete source project | `sodhamitra/android/` (also `sodhamitra/dist/Sodhamitra-source.zip`) |
+| Reproducible build, tests, emulator checks | `.github/workflows/sodhamitra.yml`, `sodhamitra/tools/ci/` |
+| Decisions, assumptions, open questions | `sodhamitra/docs/DECISIONS_AND_OPEN_QUESTIONS.md` (section "V2") |
 
-The APK is a **debug** build signed with a committed **testing** key. It is not a Play Store release and not the Play key.
+The APK is a **debug** build signed with the committed **testing** key (the same key as 0.1.0, so it installs over 0.1.0 and keeps the data). It is not a Play release.
 
-## 2. What was verified on a real Android device
+## 2. What the specification asked and what was done
 
-GitHub Actions run on an **Android 14 (API 34) x86_64 emulator with hardware acceleration** — see the workflow run for this
-branch. This is an emulator, **not a physical phone**.
-
-| Check | Result |
-|---|---|
-| The APK installs (`adb install`, package visible in `pm list packages`) | **Passed** |
-| The app launches (cold start 1.4 s) and stays running; relaunch after force-stop | **Passed** |
-| The app runs with **airplane mode on** (screenshot shows the airplane icon and the working Home screen) | **Passed** |
-| The package requests **no `INTERNET` permission** (0 matches) | **Passed** |
-| No crash in the system crash log during the run (0 `FATAL EXCEPTION`) | **Passed** |
-| On-device tests (`DeviceTest`, `DeviceUiTest`: 4 tests, 0 failures): data survives closing and reopening the database; text of **4 MB (ASCII) and ≈10 MB (Kannada)** is stored and read back unchanged on Android's real SQLite; real PDFs are written; Stakeholder → Place rule refuses to save on the real screens | **Passed** |
-| Real PDFs written by Android's own `PdfDocument` and checked afterwards with an independent tool: `editing-landscape.pdf` **5 pages, A4 landscape**; `phd-portrait.pdf` **40 pages, A4 portrait**; on **every page**: the exact footer lines "Śodhamitra — Research Planner" and "Created by © Dr. Diddigi Vamsi Krishna" and "Page i of N" | **Passed** |
-
-## 3. Automated tests on a computer (JVM, Robolectric + Compose UI tests)
-
-All run with the real application code and real bundled fonts (not mocks of the screens).
-
-| Area | Tests | What they establish |
+| V2 section | Done | How it was checked |
 |---|---|---|
-| Translation tables | `StringsTest` (7) | Ten languages bundled; every string present in every language; non-English strings are really in their script; approved English wording of all labels; "Script" = "ಲಿಪಿ" in Kannada; exact footer / copyright / feedback strings; the biography contains only the supplied facts and none of the excluded awards |
-| Script and font selection | `ScriptRunsTest` (7) | Each text run is assigned the right bundled font (Ubuntu for English, the matching Noto face for each Indian script, a Latin-extension face for the dotted IAST letters Ubuntu lacks) |
-| Forms and validation | `FormsTest` (9) | The manuscript form has exactly the 14 approved fields in order; the Book form of both lists has the 14 approved fields in order; only Title is mandatory; **Stakeholder filled → Place mandatory; cleared → optional again; title-only saves**; ISSN mandatory for articles; Scopus details / translation languages appear only when their box is ticked |
-| Database | `RepositoryTest` (8), `TextChunksTest` (3), `FlowStressTest` (1) | Chapters, points and descriptions are linked but independent records; deleting a project/chapter/point removes exactly what it owns; descriptions of ≈3 MB round-trip; a source cited many times is stored once; editing updates in place; data survives closing and reopening the database file |
-| Screens and workflows | `AppFlowTest` (23) | Home order (logo, Śodhamitra, Research Planner, ©Dr. Diddigi Vamsi Krishna, exactly three sections + Settings); Settings has exactly six items in order with the footer; Feedback opens a prefilled **draft** (SENDTO, address and subject) and never sends; "no email app" dialog with a copyable address; Support page shows the supplied details and copies the UPI ID; About pages show the copyright once; projects, outline, chapters, expandable points (one at a time, only own description), edit / cancel / delete with confirmation; bibliography categories with their own **+ Add**; ISSN rule; manuscript form identical in all three places; Stakeholder/Place rule on create and edit; independent Published / Unpublished / To-be-translated boxes; Book forms of Future Editing List and Future Trans List identical (incl. Translation Available reveal); planner tables; research notes and citations without duplicate sources; export with nothing to export makes no PDF; planner export is A4 landscape; language switching keeps user content untouched |
-| All ten languages | `LanguagesTest` (10) | For every language: Home, Settings, About, Support, Future Editing List with user content in three scripts, the 14-field manuscript form in order, and the localised validation message; user content stays byte-for-byte as stored; **80 screenshots** written |
-| Repeated launches / concurrent flows | `ListStressTest` (1), `FlowStressTest` (1), `CollectStressTest` (1) | 12 launches of a list screen with stored rows — every table shows its rows; 40 rounds of concurrently started database flows; 25 rounds of two flows collected by a screen. These were added after an intermittent "No records yet" display was found and fixed (see section 8) |
-| PDF layout | `PdfLayoutTest` (7) | Portrait/landscape page sizes; long text and tables flow over many pages; a single row taller than a page splits across pages; **nothing is ever drawn into the reserved footer band**; footer present on every page; first-page profile header with photograph; works with an empty profile; empty selection → no document |
+| 3 Palette | Maroon `#800000`, Warm Ivory `#FFF6D8`, Very Light Green `#F0F7E9` everywhere; one scheme, no dark variant; old indigo overrides removed; PDF accents follow the palette | `ThemeAndHeroTest` (values + contrast ≥ 4.5 : 1 for 13 text/background pairs), `DarkModeKeepsPaletteTest`, pixel checks of the Homepage, screenshots |
+| 4 Cards | Three large rectangular cards (16 dp corner, equal sizes, ivory arrow badge), exact labels, fully clickable | `HomeV2Test` (order, size, not a pill, colours by pixel, every card opens its destination), `NarrowScreenTest` (320 dp), screenshots in 10 languages, emulator screenshots |
+| 5 Label | Homepage says "PhD Research Plan"; the opened section is still "PhD Research", route `Projects(PHD)` unchanged | `HomeV2Test` (checks the route object) |
+| 6 Menu | Hamburger icon top right opens a right-side menu; closes with X, outside tap, Back; Homepage-only right-edge swipe | `HomeV2Test` (open, three ways to close, items navigate, swipe opens, other swipes do not, swipe does nothing on 8 other screens); **emulator: a real system `input swipe` from the edge opened the menu on the Homepage and did nothing on Settings, in default, gesture-navigation and 3-button modes** |
+| 7 Footer | "Created by Dr. Diddigi Vamsi Krishna" in a full-width maroon bar on the Hero page and Homepage; centred; clear of the navigation bar | `HomeV2Test`, `ThemeAndHeroTest` (bounds, centring, pixel colours), emulator `DeviceInsetsTest` (bar reaches the window bottom, text above the navigation bar, both navigation modes) |
+| 8 Biography | Verbatim, centred, fixed (not translated) text | `StringsTest` + `InformationPagesTest` compare every paragraph with the supplied text character by character and check the alignment of each paragraph |
+| 9 About App | Text byte-identical to version 0.1.0 in all ten languages; centred | `StringsTest.about_app_text_is_unchanged` (140 strings against a snapshot taken before V2), `InformationPagesTest` |
+| 10/11 Alignment, Support | About Dr. DVK, About App, Support centred (title bars too); QR centred, square, never clipped; payment details and copy buttons unchanged | `InformationPagesTest`, `NarrowScreenTest`, emulator screenshots and bounds checks |
+| 12/13 Wording | "+ Add Title of Thesis" (PhD) / "+ Add Title of Book" (Individual), also form title, empty state, hint, delete text | `AppFlowTest`, `HomeV2Test` |
+| 14 Profile | Form → read-only details with Edit (pencil, top right) → form with values → Save / Cancel; Back asks before discarding; persists | `ProfileFlowTest` (7 scenarios incl. a new activity after "restart"), emulator screenshots |
+| 15 Planner | No "Tap to edit" text; tap does nothing; long-press → Edit / Delete | `PlannerExplicitEditTest` (manuscript table, both book tables) |
+| 16 Data safety | No schema change; package id unchanged; no new permission | Room schema file unchanged; `package-info.txt` of the emulator run (no `INTERNET`); **update check**, see 3 |
 
-Final local run: **77 automated tests, 0 failed** (details in `TEST_RESULTS.md`).
+## 3. Verified on an Android emulator (GitHub Actions, Android 14 x86_64)
 
-## 4. Checked by looking at screenshots (not by an automated judge)
+* The APK installs, launches, restarts and runs with airplane mode on; no `INTERNET` permission; no crash in the crash log.
+* On-device tests (real SQLite, real `PdfDocument`, real screens): all pass; the real PDFs are checked with an independent tool (5 landscape and 40 portrait A4 pages, footer and page numbers on every page).
+* **Window insets on the real system** (`DeviceInsetsTest`, run with gesture navigation and with the 3-button bar): status bar, hamburger icon, cards, footer, menu, forms with their Save/Cancel bar, Profile, About Dr. DVK and Support are inside the system bars; the footer bar reaches the bottom of the window while its text stays above the navigation bar; the menu panel is maroon under both system bars.
+* **Real edge swipe** (a system-level `input swipe` from 2 px inside the right edge): opens the menu on the Homepage, does not open anything on Settings.
+* **Update check:** the 0.1.0 APK is installed, given a version-1 database (projects, chapter, point with description, manuscript, planner book, profile), the 0.2.0 APK is installed over it, and `UpgradeKeepsDataTest` finds every record and shows it in the new screens.
+  This check is the step "UPDATE CHECK" of `tools/ci/emulator_checks.sh`; it runs on every push, and its result for the delivered build is given in the delivery message.
+* Screenshots of the real device are attached to the CI run (artifact `Sodhamitra-emulator-evidence`).
 
-The ten-language screenshots produced by `LanguagesTest` and the PDF pages were looked at: scripts shape correctly with the
-bundled fonts, nothing is clipped on a 411 dp wide phone layout, Latin words and Devanagari award names inside Kannada text use
-their own fonts, tables and footer in the PDFs do not overlap. The emulator screenshot confirms the same on a real Android
-rendering stack. **Native-speaker review of the wording is still outstanding** (see decisions document).
+## 4. Automated tests on a computer (JVM, Robolectric + Compose UI tests)
 
-## 5. Implemented as specified (summary)
+All run with the real application code and the real bundled fonts. 113 tests, 0 failed (details in `TEST_RESULTS.md`). The ten-language screen tour,
+the database, forms, PDF layout and stress tests of 0.1.0 all still pass (one assertion about the Homepage and the Settings location was updated for V2; none was weakened).
 
-Offline-first native app (Kotlin, Compose, Material 3, Room, MVVM) · three main sections only · PhD Research (projects with
-Research Title, long-press Edit / Delete / Export, Thesis Outline with chapters, points, expandable descriptions, Bibliography
-with Books / MSS / Articles) · Individual Researcher / Author (Book Title projects, Book Outline, Research Notes with nested
-References / Citations) · Editing / Translation Planner (Future Editing List: Manuscript + Book; Future Trans List: Book) ·
-shared 14-field manuscript form · identical 14-field Book forms · Stakeholder/Place rule everywhere · PDF export, local, with
-page numbers, exact footer, A4 portrait / landscape, profile header with photograph · Profile (all optional) · ten bundled
-interface languages · Ubuntu for English, Noto Sans faces for the other scripts, licences included and readable in the app ·
-Settings with the six items in order and the copyright footer · About App · About Dr. DVK · Support page with the supplied QR
-code and bank details · Feedback draft · genuine logo · **no permissions, no network code**.
+## 5. Found by the independent review and fixed
+
+The change set was reviewed by eight independent read-only reviewers with a second skeptical check of each finding. Real findings that were fixed: the menu panel hid the
+light status/navigation icons (also seen on the real emulator); old dark-mode window resources; the Profile form ignored the on-screen keyboard; the Hero page in landscape;
+the dimmed menu area had no accessibility action; the edge zone ignored right-hand system bars; Odia / Bengali / Gujarati / Kannada wording consistency of the new labels.
+Findings that were refuted (already fixed, or preferences) are not listed. Some second-opinion checks could not run because of a usage limit during the review; the
+findings of those reviewers were read and judged directly.
 
 ## 6. Not done, not verifiable here, or limited
 
-* **Not tested on a physical phone** (only an emulator). Touch feel, real keyboards, real Indic input methods, photo picker,
-  hand-written text, and the system "share / save" dialogs were not exercised on a device.
-* **Profile photograph from the gallery** (photo picker) is implemented but could not be driven automatically; the
-  photograph-in-PDF path is tested with a generated image.
-* **Feedback with a real email app** was tested at the intent level only (recipient, subject, draft action) — no email app was
-  installed on the emulator to complete a draft.
-* **Translations** have not been reviewed by native speakers (see decisions document).
-* **No monochrome themed launcher icon** (would require redrawing the logo, which is not allowed).
-* **No backup / restore of research data** and no cloud backup by design; uninstalling deletes the data.
+* **No physical phone**: touch feel, real keyboards and Indic input methods, the photo picker and system dialogs were not exercised on a device. The swipe was exercised on an emulator through Android's real input pipeline, not with a finger.
+* **Gesture navigation:** the edge swipe works in the 200 dp band that the app reserves at the right edge; elsewhere along the edge the system may treat it as "Back". The hamburger icon always works.
+* **Translations** of the new labels (nine languages) have not been reviewed by native speakers.
+* The biography is shown in English in every language (approved text, not translated).
+* **Profile photograph from the gallery** is implemented but could not be driven automatically; **feedback** with a real email app was tested at the intent level only.
 * **Release / Google Play preparation** deliberately not started (waits for the author's FINAL).
-* Lint: 0 errors, a few advisory warnings (newer library versions, missing monochrome icon, KTX suggestions).
-* Editing a description of many megabytes in the on-screen text box may be slow; storing and exporting is not limited.
-
-## 7. Final local run
-
-See `TEST_RESULTS.md` next to this file for the exact test counts of the final build, generated by the same commands as CI.
-
-## 8. A defect found and fixed during testing
-
-While running the all-languages tour, one list screen occasionally showed "No records yet." for the manuscripts table although
-the data was stored and had reached the screen (the neighbouring Book table showed its row). Cause: the list screens read their
-database state through delegated properties *inside* the `LazyColumn` content lambda, so the lambda never changed identity and
-the list relied on inner change tracking; in addition each recomposition created a new database `Flow`. Fix: every screen now
-creates each `Flow` once (`rememberFlow`) and reads the collected value into a plain local before building the list, so the list
-is rebuilt whenever its data changes. After the fix 8 consecutive loops of the 10-language tour plus 12 repeated launches (≈ 90
-list launches) passed with no failure, and both CI runs on the fixed code passed the device tests.

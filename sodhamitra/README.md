@@ -7,6 +7,12 @@ lists, ten interface languages, a profile, and PDF export that is created on the
 
 © Dr. Diddigi Vamsi Krishna
 
+> **Version 0.2.0 (V2).** Approved maroon / ivory / light-green palette, three large Homepage cards ("PhD Research Plan", "Individual Researcher / Author",
+> "Editing / Translation Planner"), a hamburger menu that opens from the right, the creator footer on the Hero page and Homepage, the approved biography
+> verbatim, a read-only Profile view with Edit, "Add Title of Thesis" / "Add Title of Book", and explicit (long-press) editing in the planner lists.
+> The package id and the database are unchanged, so it installs over 0.1.0 and keeps the data. What was decided where the specification was open is in
+> `docs/DECISIONS_AND_OPEN_QUESTIONS.md` (section "V2"); what was tested is in `docs/IMPLEMENTATION_AND_TEST_REPORT.md`.
+
 > **Where this lives.** The repository already held the earlier *Tribhāṣā* translation app (as `Tribhasa-0.6-source-r2.zip`).
 > No Śodhamitra code existed, so this is the first implementation of Śodhamitra. The Tribhāṣā files were not touched.
 > The Tribhāṣā logo supplied for Śodhamitra is used exactly as supplied (cropped, not redrawn).
@@ -20,7 +26,7 @@ lists, ten interface languages, a profile, and PDF export that is created on the
 | `android/app/src/main/assets/licenses/` | The font licence texts (also shown inside the app: Settings → About App). |
 | `android/app/src/main/res/values*/strings.xml` | The ten bundled interface languages (generated, see below). |
 | `tools/i18n/` | The master translation tables and the generator that writes the ten `strings.xml` files and refuses to run if any string is missing. |
-| `tools/ci/` | The emulator script and the PDF verifier used by the GitHub Actions workflow. |
+| `tools/ci/` | The emulator script, the PDF verifier and the update check (`baseline/` holds the 0.1.0 APK, `make_v1_database.py` makes a version-1 database) used by the GitHub Actions workflow. |
 | `assets-original/` | The logo and the UPI screenshot exactly as supplied, kept for reference (not packaged). |
 | `docs/` | Implementation and test report, decisions and open questions. |
 | `../.github/workflows/sodhamitra.yml` | Builds the APK, runs the tests, then installs and launches the APK on an Android emulator. |

@@ -84,3 +84,74 @@ with the request, not from the vector approximation inside the old zip (its colo
 Release signing, AAB, store listing, screenshots for the store, privacy policy, Data-safety and content-rating forms, target
 API / testing-track requirements. One preparation is already in place: the Android bundle is configured not to split by
 language, so the in-app language choice keeps working on a Play install.
+
+---
+
+# V2 (version 0.2.0): decisions, assumptions and questions
+
+Everything below is something the V2 specification left open, or a place where two instructions met. The V2 specification wins
+over earlier instructions.
+
+## What was changed, what was deliberately not
+
+* The existing project was changed in place. The **package id** (`org.tribhasa.sodhamitra`), the **database** (Room schema version 1,
+  no migration, no schema change) and the **navigation routes / internal section names** are unchanged. A V1 database is opened as it is.
+* Only `versionName 0.2.0` / `versionCode 2` were raised so that the new build installs over the old one (same package, same testing key).
+* No printing or PDF-export feature was added. The existing PDF export is unchanged except for its accent colours (below).
+
+## Colours (section 3)
+
+* Maroon `#800000` (primary, bars, buttons, Homepage cards, creator footer, headings), Warm Ivory `#FFF6D8` (cards, dialogs, menus, text on
+  maroon), Very Light Green `#F0F7E9` (every screen background). Blush tints derived from maroon are used for selected chips and table headers.
+* The app has **one** colour scheme: the V1 dark scheme was removed, system dark mode does not re-colour it (`forceDarkAllowed=false`), and the
+  old dark/indigo resource overrides were deleted. The supplied **logo** keeps its own colours (it must not be redrawn).
+* **PDF**: headings and table-header tints in exported PDFs now use maroon / its tint / ivory instead of the old indigo and lavender; the paper stays white.
+  This is the only change to the PDF output. If you prefer the old PDF colours, say so.
+* Contrast ratios of every text/background pair are checked by an automated test (all at least 4.5 : 1).
+
+## Homepage (sections 4–7)
+
+* The three cards are large rounded **rectangles** (16 dp corner, never a pill), maroon with ivory text and a round ivory arrow badge.
+* The Homepage label is **"PhD Research Plan"**; the screen it opens is still titled "PhD Research" (internal name unchanged); the label is also used in the menu.
+  Translations of "PhD Research Plan" in the nine other languages are new and unreviewed.
+* The old Settings button is replaced by a **hamburger icon at the top right** of the (maroon) Homepage bar; it opens a **right-side menu**.
+  *Assumption:* "all existing destinations" was read as: the three sections, Profile, Language, Settings, About App, About Dr. DVK, Support Śodhamitra and Feedback.
+  The Settings page itself still lists exactly its six options.
+* The menu closes with its X, a tap on the dimmed area, or Back. A swipe that starts within 28 dp of the right edge and moves left opens it **on the Homepage only**
+  (the handler is not composed on any other screen). It only *observes* touches until the gesture is recognised, so scrolling, buttons and text fields are unaffected.
+* **Limit to know:** with Android's *gesture navigation* the system reserves the screen edges for "Back". The app asks Android to leave a 200 dp band at mid-height on the
+  right edge to the app (`systemGestureExclusion`); outside that band a swipe from the very edge may be taken by the system. The hamburger icon always works.
+* **Creator footer:** "Created by Dr. Diddigi Vamsi Krishna" in a full-width maroon bar on the Hero (splash) page and the Homepage only. *Assumption:* "Hero page" is the
+  launch (splash) screen. The existing line "©Dr. Diddigi Vamsi Krishna" under the brand block was **kept** (V2 says to preserve the existing creator attribution), so the
+  Homepage now shows both. Tell me if you want the © line removed from those two pages.
+* The maroon bar also sits behind the status bar on every screen, so the status-bar icons are always light; the menu panel is maroon where it runs under the
+  status and navigation bars so those icons stay readable.
+
+## Information pages (sections 8–11)
+
+* **About Dr. DVK** shows the approved biography exactly as supplied (heading, roles line, five paragraphs, final © line), centred. It is **not translated**:
+  the approved text is English and a translation would be a paraphrase, so it reads the same in all ten interface languages. If you want approved translations, send them.
+  The earlier drafted biography (and its translations) was removed.
+* **About App**: not a single character of the approved text was changed (an automated test compares all ten languages with the V1 text); only the alignment changed.
+  The licence texts (long legal documents) keep their conventional left alignment; their file-name headings are centred.
+* **Support**: heading and text centred; the QR image is centred, square and scales down on narrow phones. While looking at it I found two thin dark/crimson
+  lines at its top and bottom edge: they were slivers of the neighbouring screen that were cut out together with the QR code in V1. They were whitened; the QR itself is
+  pixel-identical and decodes to the same payload (`upi://pay?pa=8970500450@kotakbank&pn=DIDDIGI VAMSI KRISHNA`). Payment details and buttons are unchanged.
+
+## Wording (sections 12–13), Profile (14), planner (15)
+
+* Button **"+ Add Title of Thesis"** (PhD) and **"+ Add Title of Book"** (Individual Researcher / Author); the "+" of the old button was kept. The form titles, empty-state text,
+  long-press hint and delete confirmation of those two sections say "thesis title" / "book title" accordingly. Nothing else was renamed.
+* **Profile**: no saved profile → the editable form; saved → read-only details (every label, a dash for empty values) with **Edit** (pencil) at the top right.
+  A profile counts as saved when its row exists, which also covers V1 profiles. Edit → same form with the saved values; Save → back to the details; Cancel → discards;
+  Back or the top-bar arrow with unsaved edits asks "Discard changes?" first. A newly chosen photograph is only kept on Save (V1 stored it at once).
+* **Editing Plan / Translation Plan** = the existing *Future Editing List* and *Future Trans List* (their names were not changed). A tap on a row does nothing;
+  long-press shows Edit / Delete; the helper line now reads "Swipe sideways to see all columns. Long-press a row to edit or delete it." (the "Tap a row to edit it" part is gone).
+  The list screens of the other sections keep their tap behaviour.
+
+## Questions for you
+
+1. Keep the "©Dr. Diddigi Vamsi Krishna" line under the logo on the Hero page and Homepage in addition to the new footer? (kept for now)
+2. Is the PDF colour change (maroon headings instead of indigo) wanted? (done for consistency)
+3. Should the biography get approved translations in the other nine languages? (English only for now)
+4. The nine non-English translations of the new labels were written by the assistant and checked by independent review, but not by a native speaker.

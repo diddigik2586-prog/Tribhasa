@@ -23,8 +23,8 @@
     <string name="delete_record_msg">ಈ ದಾಖಲೆಯನ್ನು ಅಳಿಸಬೇಕೇ? ಇದನ್ನು ಹಿಂತಿರುಗಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.</string>
     <string name="delete_citation_msg">ಈ ಉಲ್ಲೇಖವನ್ನು ಅಳಿಸಬೇಕೇ? ಇದನ್ನು ಹಿಂತಿರುಗಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.</string>
     <string name="hint_longpress">ತಿದ್ದಲು ಅಥವಾ ಅಳಿಸಲು ಒಂದು ಅಂಶವನ್ನು ದೀರ್ಘವಾಗಿ ಒತ್ತಿ.</string>
-    <string name="hint_longpress_thesis">ತಿದ್ದಲು, ಅಳಿಸಲು ಅಥವಾ ರಫ್ತು ಮಾಡಲು ಪ್ರಬಂಧದ ಶೀರ್ಷಿಕೆಯನ್ನು ದೀರ್ಘವಾಗಿ ಒತ್ತಿ.</string>
-    <string name="hint_longpress_book_title">ತಿದ್ದಲು, ಅಳಿಸಲು ಅಥವಾ ರಫ್ತು ಮಾಡಲು ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆಯನ್ನು ದೀರ್ಘವಾಗಿ ಒತ್ತಿ.</string>
+    <string name="hint_longpress_thesis">ಸಂಪಾದಿಸಲು, ಅಳಿಸಲು ಅಥವಾ ರಫ್ತು ಮಾಡಲು ಪ್ರಬಂಧದ ಶೀರ್ಷಿಕೆಯನ್ನು ದೀರ್ಘವಾಗಿ ಒತ್ತಿ.</string>
+    <string name="hint_longpress_book_title">ಸಂಪಾದಿಸಲು, ಅಳಿಸಲು ಅಥವಾ ರಫ್ತು ಮಾಡಲು ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆಯನ್ನು ದೀರ್ಘವಾಗಿ ಒತ್ತಿ.</string>
     <string name="home_phd">ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನೆ</string>
     <string name="home_phd_plan">ಪಿಎಚ್.ಡಿ. ಸಂಶೋಧನಾ ಯೋಜನೆ</string>
     <string name="home_individual">ವೈಯಕ್ತಿಕ ಸಂಶೋಧಕ / ಲೇಖಕ</string>
@@ -48,9 +48,9 @@
     <string name="research_title_label">ಸಂಶೋಧನಾ ಶೀರ್ಷಿಕೆ</string>
     <string name="book_title_label">ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆ</string>
     <string name="new_phd_project">ಪ್ರಬಂಧದ ಶೀರ್ಷಿಕೆ ಸೇರಿಸಿ</string>
-    <string name="edit_phd_project">ಪ್ರಬಂಧದ ಶೀರ್ಷಿಕೆ ಸಂಪಾದಿಸಿ</string>
+    <string name="edit_phd_project">ಪ್ರಬಂಧದ ಶೀರ್ಷಿಕೆಯನ್ನು ಸಂಪಾದಿಸಿ</string>
     <string name="new_book_project">ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆ ಸೇರಿಸಿ</string>
-    <string name="edit_book_project">ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆ ಸಂಪಾದಿಸಿ</string>
+    <string name="edit_book_project">ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆಯನ್ನು ಸಂಪಾದಿಸಿ</string>
     <string name="empty_thesis_titles">ಇನ್ನೂ ಯಾವುದೇ ಪ್ರಬಂಧ ಶೀರ್ಷಿಕೆ ಇಲ್ಲ. ಪ್ರಾರಂಭಿಸಲು “+ ಪ್ರಬಂಧದ ಶೀರ್ಷಿಕೆ ಸೇರಿಸಿ” ಒತ್ತಿ.</string>
     <string name="empty_book_titles">ಇನ್ನೂ ಯಾವುದೇ ಪುಸ್ತಕ ಶೀರ್ಷಿಕೆ ಇಲ್ಲ. ಪ್ರಾರಂಭಿಸಲು “+ ಪುಸ್ತಕದ ಶೀರ್ಷಿಕೆ ಸೇರಿಸಿ” ಒತ್ತಿ.</string>
     <string name="thesis_outline">ಪ್ರಬಂಧ ರೂಪರೇಖೆ</string>

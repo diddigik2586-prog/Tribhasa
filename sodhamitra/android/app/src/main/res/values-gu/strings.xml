@@ -15,7 +15,7 @@
     <string name="expand">વિસ્તૃત કરો</string>
     <string name="collapse">સંકેલો</string>
     <string name="delete_title">કાઢી નાખવું છે?</string>
-    <string name="delete_thesis_msg">આ મહાનિબંધ શીર્ષક અને તેની અંદરનું બધું કાઢી નાખવું છે? આને પાછું લાવી શકાશે નહીં.</string>
+    <string name="delete_thesis_msg">આ થીસિસ શીર્ષક અને તેની અંદરનું બધું કાઢી નાખવું છે? આને પાછું લાવી શકાશે નહીં.</string>
     <string name="delete_book_title_msg">આ પુસ્તક શીર્ષક અને તેની અંદરનું બધું કાઢી નાખવું છે? આને પાછું લાવી શકાશે નહીં.</string>
     <string name="delete_chapter_msg">આ પ્રકરણ અને તેના બધા મુદ્દા કાઢી નાખવા છે? આને પાછું લાવી શકાશે નહીં.</string>
     <string name="delete_point_msg">આ મુદ્દો અને તેનું વર્ણન કાઢી નાખવું છે? આને પાછું લાવી શકાશે નહીં.</string>
@@ -23,7 +23,7 @@
     <string name="delete_record_msg">આ રેકોર્ડ કાઢી નાખવો છે? આને પાછો લાવી શકાશે નહીં.</string>
     <string name="delete_citation_msg">આ સંદર્ભ કાઢી નાખવો છે? આને પાછો લાવી શકાશે નહીં.</string>
     <string name="hint_longpress">સંપાદિત કરવા અથવા કાઢી નાખવા માટે કોઈ આઇટમને લાંબો સમય દબાવો.</string>
-    <string name="hint_longpress_thesis">સંપાદિત કરવા, કાઢી નાખવા અથવા નિકાસ કરવા માટે મહાનિબંધના શીર્ષકને લાંબો સમય દબાવો.</string>
+    <string name="hint_longpress_thesis">સંપાદિત કરવા, કાઢી નાખવા અથવા નિકાસ કરવા માટે થીસિસના શીર્ષકને લાંબો સમય દબાવો.</string>
     <string name="hint_longpress_book_title">સંપાદિત કરવા, કાઢી નાખવા અથવા નિકાસ કરવા માટે પુસ્તકના શીર્ષકને લાંબો સમય દબાવો.</string>
     <string name="home_phd">પીએચ.ડી. સંશોધન</string>
     <string name="home_phd_plan">પીએચ.ડી. સંશોધન યોજના</string>
@@ -39,7 +39,7 @@
     <string name="settings_about_dvk">ડૉ. ડીવીકે વિશે</string>
     <string name="settings_support">Śodhamitra ને સહયોગ આપો</string>
     <string name="settings_feedback">પ્રતિભાવ</string>
-    <string name="add_thesis_title">+ મહાનિબંધનું શીર્ષક ઉમેરો</string>
+    <string name="add_thesis_title">+ થીસિસનું શીર્ષક ઉમેરો</string>
     <string name="add_book_title">+ પુસ્તકનું શીર્ષક ઉમેરો</string>
     <string name="add_plus">+ ઉમેરો</string>
     <string name="add_chapter">+ પ્રકરણ ઉમેરો</string>
@@ -47,11 +47,11 @@
     <string name="add_note">+ નોંધ ઉમેરો</string>
     <string name="research_title_label">સંશોધન શીર્ષક</string>
     <string name="book_title_label">પુસ્તકનું શીર્ષક</string>
-    <string name="new_phd_project">મહાનિબંધનું શીર્ષક ઉમેરો</string>
-    <string name="edit_phd_project">મહાનિબંધનું શીર્ષક સંપાદિત કરો</string>
+    <string name="new_phd_project">થીસિસનું શીર્ષક ઉમેરો</string>
+    <string name="edit_phd_project">થીસિસનું શીર્ષક સંપાદિત કરો</string>
     <string name="new_book_project">પુસ્તકનું શીર્ષક ઉમેરો</string>
     <string name="edit_book_project">પુસ્તકનું શીર્ષક સંપાદિત કરો</string>
-    <string name="empty_thesis_titles">હજી કોઈ મહાનિબંધ શીર્ષક નથી. શરૂ કરવા “+ મહાનિબંધનું શીર્ષક ઉમેરો” દબાવો.</string>
+    <string name="empty_thesis_titles">હજી કોઈ થીસિસ શીર્ષક નથી. શરૂ કરવા “+ થીસિસનું શીર્ષક ઉમેરો” દબાવો.</string>
     <string name="empty_book_titles">હજી કોઈ પુસ્તક શીર્ષક નથી. શરૂ કરવા “+ પુસ્તકનું શીર્ષક ઉમેરો” દબાવો.</string>
     <string name="thesis_outline">થીસિસની રૂપરેખા</string>
     <string name="book_outline">પુસ્તકની રૂપરેખા</string>

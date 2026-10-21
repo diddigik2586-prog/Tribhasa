@@ -16,6 +16,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -78,11 +79,15 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -148,8 +153,10 @@ fun SplashScreen(onDone: () -> Unit) {
     LaunchedEffect(Unit) { delay(1400); onDone() }
     Column(Modifier.fillMaxSize()) {
         HomeTopBar(onMenu = null)
-        Box(Modifier.weight(1f).fillMaxWidth().clickable { onDone() }.padding(24.dp), contentAlignment = Alignment.Center) {
-            BrandBlock(logoSize = 168.dp)
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth().clickable { onDone() }.padding(24.dp), contentAlignment = Alignment.Center) {
+            // the logo takes what is left after the three text lines, so that the whole brand block also fits a landscape phone
+            val logo = (maxHeight - 150.dp).coerceIn(48.dp, 168.dp)
+            BrandBlock(logoSize = logo)
         }
         CreatorFooter()
     }
@@ -165,7 +172,8 @@ fun HomeScreen(vm: AppViewModel) {
     fun go(route: Route) { drawerOpen = false; vm.go(route) }
 
     // The right-edge swipe lives on the Homepage only: no other screen composes it.
-    Box(Modifier.fillMaxSize().rightEdgeSwipe(enabled = !drawerOpen) { drawerOpen = true }) {
+    val rightInset = WindowInsets.safeDrawing.getRight(LocalDensity.current, LocalLayoutDirection.current)
+    Box(Modifier.fillMaxSize().rightEdgeSwipe(enabled = !drawerOpen, rightInsetPx = rightInset) { drawerOpen = true }) {
         Scaffold(
             topBar = { HomeTopBar(onMenu = { drawerOpen = true }) },
             bottomBar = { CreatorFooter() },
@@ -248,7 +256,7 @@ private fun BoxScope.RightDrawer(open: Boolean, onClose: () -> Unit, items: @Com
     AnimatedVisibility(visible = open, enter = fadeIn(), exit = fadeOut()) {
         Box(
             Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)).testTag("menu-scrim")
-                .semantics { contentDescription = closeLabel }
+                .semantics { contentDescription = closeLabel; onClick(label = closeLabel) { onClose(); true } }
                 .pointerInput(Unit) { detectTapGestures { onClose() } },
         )
     }
@@ -299,13 +307,13 @@ private fun DrawerItem(label: Int, onClick: () -> Unit) {
  * events are only observed (never consumed) until the gesture is recognised, so scrolling, taps, buttons and text fields keep
  * working; a mostly vertical movement cancels the recognition.
  */
-private fun Modifier.rightEdgeSwipe(enabled: Boolean, onOpen: () -> Unit): Modifier = pointerInput(enabled) {
+private fun Modifier.rightEdgeSwipe(enabled: Boolean, rightInsetPx: Int, onOpen: () -> Unit): Modifier = pointerInput(enabled, rightInsetPx) {
     if (!enabled) return@pointerInput
     val edgePx = EDGE_ZONE.toPx()
     val openDistance = 40.dp.toPx()
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-        if (down.position.x < size.width - edgePx) return@awaitEachGesture
+        if (down.position.x < size.width - rightInsetPx - edgePx) return@awaitEachGesture   // the edge of the usable area, not of the cut-out / side bar
         var dx = 0f
         var dy = 0f
         while (true) {

@@ -50,6 +50,28 @@ adb shell pidof "$PKG" || { echo "PROCESS NOT RUNNING offline"; fail=1; }
 adb exec-out screencap -p > "$OUT/03-offline-home.png"
 adb shell dumpsys connectivity | grep -i -m3 "airplane\|NetworkAgentInfo" > "$OUT/offline-state.txt" || true
 
+note "UPDATE CHECK: install the previous version (0.1.0), give it data, install this build over it, check the data"
+BASE=../tools/ci/baseline/Sodhamitra-0.1.0-testing.apk
+adb uninstall "$PKG" > /dev/null 2>&1 || true
+if adb install "$BASE"; then
+  adb shell am start -W -n "$PKG/.MainActivity" > /dev/null; sleep 6; adb shell am force-stop "$PKG"
+  python3 ../tools/ci/make_v1_database.py app/schemas/org.tribhasa.sodhamitra.data.AppDatabase/1.json "$OUT/v1-seed.db" || fail=1
+  adb push "$OUT/v1-seed.db" /data/local/tmp/v1-seed.db
+  adb shell "run-as $PKG mkdir -p databases; run-as $PKG rm -f databases/sodhamitra.db databases/sodhamitra.db-wal databases/sodhamitra.db-shm; run-as $PKG cp /data/local/tmp/v1-seed.db databases/sodhamitra.db; run-as $PKG ls -la databases" | tee "$OUT/upgrade-v1-files.txt"
+  adb install -r "$APK" || fail=1                       # the new build over the old one: same package name, same signing key
+  adb shell dumpsys package "$PKG" | grep -E "versionName|versionCode" | head -3 | tee "$OUT/upgrade-version.txt"
+  adb install -r -t "$TESTAPK" || fail=1
+  adb shell am instrument -w -r -e class org.tribhasa.sodhamitra.UpgradeKeepsDataTest "$PKG.test/androidx.test.runner.AndroidJUnitRunner" | tee "$OUT/upgrade.txt"
+  grep -q "FAILURES!!!" "$OUT/upgrade.txt" && fail=1
+  grep -E "^OK \(" "$OUT/upgrade.txt" || fail=1
+else
+  echo "could not install the baseline APK"; fail=1
+fi
+adb uninstall "$PKG" > /dev/null 2>&1 || true
+adb install -r "$APK" || exit 1
+adb install -r -t "$TESTAPK" || exit 1
+adb shell settings put global hide_error_dialogs 1 || true
+
 note "instrumented tests on the device (real SQLite, real PdfDocument)"
 adb install -r -t "$TESTAPK" || exit 1
 adb shell am instrument -w -r "$PKG.test/androidx.test.runner.AndroidJUnitRunner" | tee "$OUT/instrumentation.txt"
@@ -65,10 +87,11 @@ for MODE in gestural threebutton; do
   adb shell am instrument -w -r -e shotPrefix "$MODE" -e class org.tribhasa.sodhamitra.DeviceInsetsTest "$PKG.test/androidx.test.runner.AndroidJUnitRunner" | tee "$OUT/insets-$MODE.txt"
   grep -q "FAILURES!!!" "$OUT/insets-$MODE.txt" && fail=1
   grep -E "^OK \(" "$OUT/insets-$MODE.txt" || fail=1
-  grep -E "INSETS\[" "$OUT/insets-$MODE.txt" | head -20
+  adb shell cmd overlay list | grep -i "navbar" | tee "$OUT/overlays-$MODE.txt" || true
 done
 mkdir -p "$OUT/shots"; adb pull "/sdcard/Android/data/$PKG/files/test-shots/." "$OUT/shots/" || true
 ls -la "$OUT/shots" || true
+for f in "$OUT"/shots/*-insets.log; do echo "--- $f"; cat "$f"; done
 
 note "collect the PDFs written by the app on the device"
 adb pull "/sdcard/Android/data/$PKG/files/test-pdfs/." "$OUT/pdfs/" || fail=1

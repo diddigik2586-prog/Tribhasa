@@ -3,6 +3,4 @@
     <!-- the approved Very Light Green background, shown before the first frame is drawn -->
     <color name="window_background">#FFF0F7E9</color>
     <color name="ic_launcher_background">#FF1D1673</color>
-    <!-- the approved Maroon: bars behind the status / navigation icons -->
-    <color name="brand_maroon">#FF800000</color>
 </resources>
