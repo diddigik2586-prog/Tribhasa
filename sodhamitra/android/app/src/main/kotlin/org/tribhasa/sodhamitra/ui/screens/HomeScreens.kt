@@ -32,7 +32,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -260,14 +264,20 @@ private fun BoxScope.RightDrawer(open: Boolean, onClose: () -> Unit, items: @Com
             shape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp),
             shadowElevation = 8.dp,
         ) {
-            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Bottom + WindowInsetsSides.End))) {
-                Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Txt(R.string.menu_title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary)
-                    IconButton(onClick = onClose, modifier = Modifier.testTag("menu-close")) { Icon(Icons.Filled.Close, contentDescription = closeLabel) }
+            Column(Modifier.fillMaxSize()) {
+                // Maroon where the panel runs under the status bar and the navigation bar: their (light) icons stay readable
+                // on the ivory panel exactly as they are on the maroon bar and footer of the page behind it.
+                Spacer(Modifier.fillMaxWidth().windowInsetsTopHeight(WindowInsets.statusBars).background(MaterialTheme.colorScheme.primary))
+                Column(Modifier.weight(1f).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.End))) {
+                    Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Txt(R.string.menu_title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary)
+                        IconButton(onClick = onClose, modifier = Modifier.testTag("menu-close")) { Icon(Icons.Filled.Close, contentDescription = closeLabel) }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) { items() }
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(vertical = 6.dp)) { items() }
+                Spacer(Modifier.fillMaxWidth().windowInsetsBottomHeight(WindowInsets.navigationBars).background(MaterialTheme.colorScheme.primary))
             }
         }
     }

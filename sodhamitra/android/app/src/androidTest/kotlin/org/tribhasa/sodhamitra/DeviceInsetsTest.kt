@@ -66,12 +66,16 @@ class DeviceInsetsTest {
     private fun SemanticsNode.right() = boundsInWindow.right
     private fun textNode(t: String) = rule.onAllNodesWithText(t)[0].fetchSemanticsNode()
 
-    private fun shot(name: String) {
+    /** a real screenshot of the whole screen including the system bars; saved for review and returned for pixel checks */
+    private fun shot(name: String): Bitmap? {
         rule.waitForIdle(); Thread.sleep(500)
-        val bmp: Bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot() ?: return
+        val bmp: Bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot() ?: return null
         val dir = File(rule.activity.getExternalFilesDir(null), "test-shots").apply { mkdirs() }
         File(dir, "$prefix-$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        return bmp
     }
+    private fun isMaroon(c: Int) = android.graphics.Color.red(c) in 90..160 && android.graphics.Color.green(c) < 45 && android.graphics.Color.blue(c) < 45
+    private fun isDimmedMaroon(c: Int) = android.graphics.Color.red(c) in 40..90 && android.graphics.Color.green(c) < 25 && android.graphics.Color.blue(c) < 25
 
     /** a real system-level input command (it goes through Android's input dispatcher and the system gesture detection) */
     private fun shell(cmd: String): String {
@@ -131,7 +135,14 @@ class DeviceInsetsTest {
         assertEquals("the menu panel reaches the right edge", windowW.toFloat(), panel.right(), 2f)
         val title = textNode("Menu")
         assertTrue("menu title below the status bar", title.top() >= b.top - 1)
-        shot("02-menu")
+        val menuShot = shot("02-menu")
+        if (menuShot != null) {
+            // where the menu panel runs under the status bar and the navigation bar it is maroon, so that the light system icons stay readable
+            assertTrue("panel under the status bar is maroon", isMaroon(menuShot.getPixel(windowW - 6, 4)))
+            assertTrue("panel under the navigation bar is maroon", isMaroon(menuShot.getPixel(windowW - 6, windowH - 4)))
+            // and the page behind it is dimmed, not hidden
+            assertTrue("dimmed maroon bar behind the menu", isDimmedMaroon(menuShot.getPixel(20, b.top + 40)) || isDimmedMaroon(menuShot.getPixel(20, windowH - 4)))
+        }
         val last = textNode("Feedback")
         assertTrue("last menu item above the navigation bar (${last.bottom()} <= ${windowH - b.bottom})", last.bottom() <= windowH - b.bottom + 1)
     }
